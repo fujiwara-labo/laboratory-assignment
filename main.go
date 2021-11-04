@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
     "os"
-    // "crypto"
     "golang.org/x/crypto/bcrypt"
     _ "github.com/go-sql-driver/mysql"
 
@@ -87,7 +86,7 @@ func main() {
     router.GET("/", func(c *gin.Context) {
         c.HTML(http.StatusOK, "index.html", gin.H{
              // htmlに渡す変数を定義
-            "message": "hello gin",
+            "message": "test",
         })
     })
     
