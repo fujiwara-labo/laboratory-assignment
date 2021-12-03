@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
     "os"
-    "golang.org/x/crypto/bcrypt"
+    "github.com/fujiwara-labo/laboratory-assignment.git/crypto"
     _ "github.com/go-sql-driver/mysql"
 
     "github.com/gin-gonic/gin"
@@ -12,16 +12,6 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
 )
-// PasswordEncrypt パスワードをhash化
-func PasswordEncrypt(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(hash), err
-}
-
-// CompareHashAndPassword hashと非hashパスワード比較
-func CompareHashAndPassword(hash, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-}
 
 // User モデルの宣言
 type User struct {
@@ -58,7 +48,7 @@ func dbInit() {
 
 // ユーザー登録処理
 func createUser(username string, password string) []error {
-	passwordEncrypt, _ := PasswordEncrypt(password)
+	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
@@ -130,7 +120,7 @@ func main() {
         formPassword := c.PostForm("password")
 
         // ユーザーパスワードの比較
-        if err := CompareHashAndPassword(dbPassword, formPassword); err != nil {
+        if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
             log.Println("ログインできませんでした")
             c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             c.Abort()

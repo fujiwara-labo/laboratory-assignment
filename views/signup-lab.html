@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Form</title>
 </head>
-    <body> 
-        <h1>学生用ログインページ</h1>
+    <body>
+        <h1>教員用新規登録ページ</h1>
         <div class="input">
             <p>{{.err}}</p>
-            <form action="/login" method="post">
+            <form action="/signup-lab" method="post">
                 <p>ユーザー名 :<input type="text" name="username" placeholder=""/></p>
                 <p>パスワード :<input type="text" name="password" placeholder=""/></p>
-                <p><input type="submit" value="送信" /></p>
+                <p><input type="submit" value="登録" /></p>
             </form>
         </div>
     </body>
