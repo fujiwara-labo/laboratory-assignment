@@ -80,34 +80,27 @@ func main() {
         })
     })
     
-    // ユーザー登録画面
-    router.GET("/signup", func(c *gin.Context) {
+    // ユーザー登録、ログイン画面
+    router.GET("/login", func(c *gin.Context) {
 
-        c.HTML(200, "signup.html", gin.H{})
+        c.HTML(200, "login.html", gin.H{})
     })
-
     // ユーザー登録
     router.POST("/signup", func(c *gin.Context) {
         var form User
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
-            c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             c.Abort()
         } else {
             username := c.PostForm("username")
             password := c.PostForm("password")
             // 登録ユーザーが重複していた場合にはじく処理
             if err := createUser(username, password); err != nil {
-                c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
+                c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             }
             c.Redirect(302, "/")
         }
-    })
-
-    // ユーザーログイン画面
-    router.GET("/login", func(c *gin.Context) {
-
-        c.HTML(200, "login.html", gin.H{})
     })
 
     // ユーザーログイン
@@ -126,7 +119,7 @@ func main() {
             c.Abort()
         } else {
             log.Println("ログインできました")
-            c.Redirect(302, "/")
+            c.HTML(200, "home-student.html", gin.H{})
         }
     })
 

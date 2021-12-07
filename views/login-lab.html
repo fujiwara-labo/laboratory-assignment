@@ -1,20 +1,28 @@
-
 <!-- code:web5-1 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Form</title>
+    <title>教員用ページ</title>
 </head>
     <body> 
-        <h1>教員用ログインページ</h1>
+        <h1>ログインはこちら</h1>
         <div class="input">
             <p>{{.err}}</p>
-            <form action="/login-lab" method="post">
+            <form action="/login" method="post">
                 <p>ユーザー名 :<input type="text" name="username" placeholder=""/></p>
                 <p>パスワード :<input type="text" name="password" placeholder=""/></p>
                 <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+        <h1>新規登録はこちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <form action="/signup" method="post">
+                <p>ユーザー名 :<input type="text" name="username" placeholder=""/></p>
+                <p>パスワード :<input type="text" name="password" placeholder=""/></p>
+                <p><input type="submit" value="登録" /></p>
             </form>
         </div>
     </body>
