@@ -25,16 +25,16 @@ func main() {
     })
     
     // ユーザー登録、ログイン画面
-    router.GET("/login", func(c *gin.Context) {
+    router.GET("/admin", func(c *gin.Context) {
 
-        c.HTML(200, "login.html", gin.H{})
+        c.HTML(200, "admin.html", gin.H{})
     })
     // ユーザー登録
     router.POST("/signup", func(c *gin.Context) {
         var form models.User
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
-            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             c.Abort()
         } else {
             username := c.PostForm("username")
@@ -60,7 +60,7 @@ func main() {
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
             log.Println("ログインできませんでした")
-            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             c.Abort()
         } else {
             log.Println("ログインできました")
