@@ -33,12 +33,12 @@ func DbInit() {
 }
 
 // ユーザー登録処理
-func CreateUser(username string, password string) []error {
+func CreateUser(username string, password string, department string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.User{Username: username, Password: passwordEncrypt}).GetErrors(); err != nil {
+	if err := db.Create(&models.User{Username: username, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
 		return err
 	}
 	return nil

@@ -39,9 +39,10 @@ func main() {
         } else {
             username := c.PostForm("username")
             password := c.PostForm("password")
+            department := c.PostForm("department")
             // 登録ユーザーが重複していた場合にはじく処理
-            if err := control.CreateUser(username, password); err != nil {
-                c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
+            if err := control.CreateUser(username, password, department); err != nil {
+                c.HTML(http.StatusBadRequest, "home-student.html", gin.H{"err": err})
             }
             c.Redirect(302, "/")
         }
