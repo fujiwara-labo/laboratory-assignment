@@ -2,7 +2,6 @@ package control
 
 import(
 	"log"
-	"net/http"
     "os"
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
 	"github.com/fujiwara-labo/laboratory-assignment.git/models"
@@ -18,10 +17,6 @@ func gormConnect() *gorm.DB {
 	}
     DBMS := os.Getenv("DRIVER")
     CONNECT := os.Getenv("DSN")
-	// USER := os.Getenv("MYSQL_USER")
-	// PASS := os.Getenv("MYSQL_PASSWORD")
-	// DBNAME := os.Getenv("MYSQL_DATABASE")
-	// CONNECT := USER + ":" + PASS + "@/" + DBNAME + "?parseTime=true"
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
 		panic(err.Error())
@@ -29,7 +24,7 @@ func gormConnect() *gorm.DB {
 	return db
 }
 // DBの初期化
-func dbInit() {
+func DbInit() {
 	db := gormConnect()
 	// コネクション解放
 	defer db.Close()
@@ -38,7 +33,7 @@ func dbInit() {
 }
 
 // ユーザー登録処理
-func createUser(username string, password string) []error {
+func CreateUser(username string, password string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
@@ -50,7 +45,7 @@ func createUser(username string, password string) []error {
 
 }
 // ユーザーを一件取得
-func getUser(username string) models.User {
+func GetUser(username string) models.User {
 	db := gormConnect()
 	var user models.User
 	db.First(&user, "username = ?", username)
