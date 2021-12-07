@@ -3,8 +3,8 @@ package models
 import(
 	"github.com/jinzhu/gorm"
 )
-// User モデルの宣言
-type User struct {
+// Student モデルの宣言
+type Student struct {
 	gorm.Model
 	Student_id string `form:"student_id" binding:"required" gorm:"unique;not null"`
 	Password string `form:"password" binding:"required"`

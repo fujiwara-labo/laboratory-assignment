@@ -31,7 +31,7 @@ func main() {
     })
     // 学生ユーザー登録
     router.POST("/signup", func(c *gin.Context) {
-        var form models.User
+        var form models.Student
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
             c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
@@ -41,7 +41,7 @@ func main() {
             password := c.PostForm("password")
             department := c.PostForm("department")
             // 登録ユーザーが重複していた場合にはじく処理
-            if err := control.CreateUser(student_id, password, department); err != nil {
+            if err := control.CreateStudent(student_id, password, department); err != nil {
                 c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             }
             c.Redirect(302, "/")
@@ -52,18 +52,18 @@ func main() {
     router.POST("/login", func(c *gin.Context) {
 
         // DBから取得したユーザーパスワード(Hash)
-        dbPassword := control.GetUser(c.PostForm("student_id")).Password
+        dbPassword := control.GetStudent(c.PostForm("student_id")).Password
         log.Println(dbPassword)
         // フォームから取得したユーザーパスワード
         formPassword := c.PostForm("password")
 
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
-            log.Println("ログインできませんでした")
+            log.Println("Could not log in")
             c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             c.Abort()
         } else {
-            log.Println("ログインできました")
+            log.Println("Could log in")
             c.HTML(200, "home-student.html", gin.H{})
         }
     })
@@ -103,11 +103,11 @@ func main() {
 
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
-            log.Println("ログインできませんでした")
+            log.Println("Could not log in")
             c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
             c.Abort()
         } else {
-            log.Println("ログインできました")
+            log.Println("Could log in")
             c.HTML(200, "home-lab.html", gin.H{})
         }
     })

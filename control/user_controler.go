@@ -29,17 +29,17 @@ func DbInit() {
 	// コネクション解放
 	defer db.Close()
     //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Student{})
 	db.AutoMigrate(&models.Lab{})
 }
 
 // 学生ユーザー登録処理
-func CreateUser(student_id string, password string, department string) []error {
+func CreateStudent(student_id string, password string, department string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.User{Student_id: student_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
+	if err := db.Create(&models.Student{Student_id: student_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -56,12 +56,12 @@ func CreateLab(lab_id string, password string, department string) []error {
 	return nil
 }
 // 学生ユーザーを一件取得
-func GetUser(student_id string) models.User {
+func GetStudent(student_id string) models.Student {
 	db := gormConnect()
-	var user models.User
-	db.First(&user, "student_id = ?", student_id)
+	var student models.Student
+	db.First(&student, "student_id = ?", student_id)
 	db.Close()
-	return user
+	return student
 }
 // 教員ユーザーを一件取得
 func GetLab(lab_id string) models.Lab {
