@@ -89,7 +89,7 @@ func main() {
         session.Clear()
         session.Save()
         log.Println(session.Get("loginUser"))
-        c.HTML(200, "admin.html", gin.H{})
+        c.Redirect(302, "/login")
     })
     // 学生ユーザーホーム画面
     router.GET("/home-student", func(c *gin.Context) {
