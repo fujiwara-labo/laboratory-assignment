@@ -89,7 +89,7 @@ func main() {
         session.Clear()
         session.Save()
         log.Println(session.Get("loginUser"))
-        c.Redirect(302, "/login")
+        c.Redirect(302, "/")
     })
     // 学生ユーザーホーム画面
     router.GET("/home-student", func(c *gin.Context) {
@@ -152,17 +152,34 @@ func main() {
             if err := control.CreateLab(lab_id, password, department); err != nil {
                 c.Redirect(302, "/login-lab")
             }
-            c.Redirect(302, "/home-lab")
+            c.Redirect(302, "/login-lab")
         }
     })
     router.GET("/home-lab", func(c *gin.Context) {
-        c.HTML(200, "home-lab.html", gin.H{})
+        session := sessions.Default(c)
+        // if !session {
+        //     c.Redirect(302, "/login-lab")
+        // }
+        session_id := session.Get("loginUser")
+        lab_id := session_id.(string)
+        aspires := control.GetAllAspire(lab_id)
+        c.HTML(200, "home-lab.html", gin.H{
+            "lab_id": lab_id,
+            "lab_id2": lab_id,
+            "aspires": aspires,
+        })
     })
     // 教員ユーザーログイン
     router.POST("/login-lab", func(c *gin.Context) {
-
+        // sessionを作成
+        session := sessions.Default(c)
+        session.Set("loginUser", c.PostForm("lab_id"))
+        session.Save()
+        // ログインしているStudentの取得
+        lab := control.GetLab(c.PostForm("lab_id"))
+        log.Println(lab)
         // DBから取得したユーザーパスワード(Hash)
-        dbPassword := control.GetLab(c.PostForm("lab_id")).Password
+        dbPassword := lab.Password
         log.Println(dbPassword)
         // フォームから取得したユーザーパスワード
         formPassword := c.PostForm("password")

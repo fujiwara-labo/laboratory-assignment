@@ -85,6 +85,15 @@ func GetAllLab(department string) []models.Lab {
 	return labs
 }
 
+// ログインしている研究室の志望書一覧を取得
+func GetAllAspire(lab_id string) []models.Aspire {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Where("lab_id = ?",lab_id).Find(&aspires)
+	db.Close()
+	return aspires
+}
+
 // 志望研究室、理由、志望度をAspireに登録する処理
 func CreateAspire(student_id string, lab_id string, reason string, rank string) {
 	db := gormConnect()
