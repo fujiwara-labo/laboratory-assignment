@@ -9,13 +9,19 @@ import (
     _ "github.com/go-sql-driver/mysql"
 
     "github.com/gin-gonic/gin"
-	_ "github.com/joho/godotenv/autoload"
+    _ "github.com/joho/godotenv/autoload"
+    "github.com/gin-contrib/sessions"
+    "github.com/gin-contrib/sessions/cookie"
 )
 
 func main() {
     control.DbInit()
     router := gin.Default()
-	router.LoadHTMLGlob("views/*.html")
+    router.LoadHTMLGlob("views/*.html")
+    // sessionを利用する
+    store := cookie.NewStore([]byte("secret"))
+    router.Use(sessions.Sessions("mysession", store))
+
 
     router.GET("/", func(c *gin.Context) {
         c.HTML(http.StatusOK, "index.html", gin.H{
@@ -50,9 +56,15 @@ func main() {
 
     // 学生ユーザーログイン
     router.POST("/login", func(c *gin.Context) {
+        // sessionを作成
+        session := sessions.Default(c)
+        session.Set("loginUser", c.PostForm("student_id"))
+        session.Save()
+        log.Println(session.Get("loginUser"))
 
-        // DBから取得したユーザーパスワード(Hash)
+        // ログインしているStudentの取得
         student := control.GetStudent(c.PostForm("student_id"))
+        // DBから取得したユーザーパスワード(Hash)
         dbPassword := student.Password
         // フォームから取得したユーザーパスワード
         formPassword := c.PostForm("password")
@@ -76,6 +88,10 @@ func main() {
         }
     })
     router.POST("/logout",func(c *gin.Context) {
+        session := sessions.Default(c)
+        session.Clear()
+        session.Save()
+        log.Println(session.Get("loginUser"))
         c.HTML(200, "admin.html", gin.H{})
     })
 
