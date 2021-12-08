@@ -127,6 +127,7 @@ func main() {
         reason := c.PostForm("reason")
         rank := c.PostForm("rank")
         lab_id := c.PostForm("lab_id")
+        log.Println(lab_id)
         control.CreateAspire(student_id, lab_id, reason, rank)
         c.Redirect(302, "/home-student")
     })

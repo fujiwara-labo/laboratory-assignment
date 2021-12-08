@@ -30,8 +30,11 @@ func DbInit() {
 	defer db.Close()
     //構造体に基づいてテーブルを作成
 	db.AutoMigrate(&models.Student{})
+	log.Println("create Student table")
 	db.AutoMigrate(&models.Lab{})
+	log.Println("create Student table")
 	db.AutoMigrate(&models.Aspire{})
+	log.Println("create Student table")
 }
 
 // 学生ユーザー登録処理

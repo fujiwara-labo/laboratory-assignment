@@ -16,19 +16,19 @@
     <div align= left>
         <h3>{{.department}}学科の研究室一覧</h3>
         <ul>
-            {{ range .labs }}
-                <li>{{.Lab_id}}研究室</li>
-                <form action="/home-student" method="post">
-                    <p>志望研究室 :<input type="text" name="lab_id" placeholder=""/></p>
-                    <p>志望理由 :<input type="text" name="reason" style="display: inline-block;width: 100%;height: 100%;width: 100%;padding: 0.5em;border: 1px solid #999;box-sizing: border-box;background: #f2f2f2;margin: 0.5em 0;"></p>
-                    <p>志望度 :<select name="rank" size="1" >
-                        <option value="1">第1希望</option>
-                        <option value="2">第2希望</option>
-                        <option value="3">第3希望</option>
-                    </select></p>
+                <form action="/form" method="post">
+                    {{ range .labs }}
+                        <li>{{.Lab_id}}研究室</li>
+                        <p>志望研究室 :<input type="text" name="lab_id" placeholder=""/></p>
+                        <p>志望理由 :<input type="text" name="reason" style="display: inline-block;width: 100%;height: 100%;width: 100%;padding: 0.5em;border: 1px solid #999;box-sizing: border-box;background: #f2f2f2;margin: 0.5em 0;"></p>
+                        <p>志望度 :<select name="rank" size="1" >
+                            <option value="1">第1希望</option>
+                            <option value="2">第2希望</option>
+                            <option value="3">第3希望</option>
+                        </select></p>
+                    {{ end }}
                     <p><input type="submit" value="送信" /></p>
                 </form>
-            {{ end }}
         </ul>
     </div>
 </body>
