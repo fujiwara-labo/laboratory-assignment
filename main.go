@@ -31,16 +31,16 @@ func main() {
     })
     
     // 学生ユーザー登録、ログイン画面
-    router.GET("/admin", func(c *gin.Context) {
+    router.GET("/login", func(c *gin.Context) {
 
-        c.HTML(200, "admin.html", gin.H{})
+        c.HTML(200, "login.html", gin.H{})
     })
     // 学生ユーザー登録
     router.POST("/signup", func(c *gin.Context) {
         var form models.Student
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
-            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             c.Abort()
         } else {
             student_id := c.PostForm("student_id")
@@ -48,7 +48,7 @@ func main() {
             department := c.PostForm("department")
             // 登録ユーザーが重複していた場合にはじく処理
             if err := control.CreateStudent(student_id, password, department); err != nil {
-                c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
+                c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             }
             c.Redirect(302, "/")
         }
@@ -72,7 +72,7 @@ func main() {
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
             log.Println("Could not log in")
-            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
             c.Abort()
         } else {
             log.Println("Could log in")
@@ -80,13 +80,15 @@ func main() {
             log.Println(labs)
             log.Println("collect get labs")
 
-            c.HTML(200, "home-student.html", gin.H{
-                "student_id": student.Student_id,
-                "department": student.Department,
-                "labs": labs,
-            })
+            // c.HTML(200, "home-student.html", gin.H{
+            //     "student_id": student.Student_id,
+            //     "department": student.Department,
+            //     "labs": labs,
+            // })
+            c.Redirect(302, "/home-student")
         }
     })
+    // 学生ユーザーログアウト（sessionクリア）
     router.POST("/logout",func(c *gin.Context) {
         session := sessions.Default(c)
         session.Clear()
@@ -94,18 +96,57 @@ func main() {
         log.Println(session.Get("loginUser"))
         c.HTML(200, "admin.html", gin.H{})
     })
+    router.GET("/home-student", func(c *gin.Context) {
+        session := sessions.Default(c)
+        // if !session {
+        //     c.Redirect(302, "/login")
+        // }
+        session_id := session.Get("loginUser")
+        student_id := session_id.(string)
+        c.HTML(200, "home-student.html", gin.H{
+            "student_id": student_id,
+        })
+    })
+    // フォームの取得
+    router.POST("/form", func(c *gin.Context) {
+        session := sessions.Default(c)
+
+        session_id := session.Get("loginUser")
+        student_id := session_id.(string)
+        log.Println(student_id)
+        reason := c.PostForm("reason")
+        rank := c.PostForm("rank")
+        lab_id := c.PostForm("lab_id")
+        control.CreateAspire(student_id, lab_id, reason, rank)
+        c.Redirect(302, "/home-student")
+        // c.Redirect(302, "/")
+    })
+
+    router.GET("/form", func(c *gin.Context) {
+        session := sessions.Default(c)
+
+        session_id := session.Get("loginUser")
+        student_id := session_id.(string)
+        student := control.GetStudent(student_id)
+        labs := control.GetAllLab(student.Department)
+        c.HTML(200, "form.html", gin.H{
+            "student_id": student.Student_id,
+            "department": student.Department,
+            "labs": labs,
+        })
+    })
 
     // 教員ユーザー登録、ログイン画面
-    router.GET("/admin-lab", func(c *gin.Context) {
+    router.GET("/login-lab", func(c *gin.Context) {
 
-        c.HTML(200, "admin-lab.html", gin.H{})
+        c.HTML(200, "login-lab.html", gin.H{})
     })
     // 教員ユーザー登録
     router.POST("/signup-lab", func(c *gin.Context) {
         var form models.Lab
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
-            c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+            c.Redirect(302, "/login-lab")
             c.Abort()
         } else {
             lab_id := c.PostForm("lab_id")
@@ -113,12 +154,14 @@ func main() {
             department := c.PostForm("department")
             // 登録ユーザーが重複していた場合にはじく処理
             if err := control.CreateLab(lab_id, password, department); err != nil {
-                c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+                c.Redirect(302, "/login-lab")
             }
-            c.Redirect(302, "/")
+            c.Redirect(302, "/home-lab")
         }
     })
-
+    router.GET("/home-lab", func(c *gin.Context) {
+        c.HTML(200, "home-lab.html", gin.H{})
+    })
     // 教員ユーザーログイン
     router.POST("/login-lab", func(c *gin.Context) {
 
@@ -131,11 +174,12 @@ func main() {
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
             log.Println("Could not log in")
-            c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+            c.Redirect(302, "/login-lab")
             c.Abort()
         } else {
             log.Println("Could log in")
-            c.HTML(200, "home-lab.html", gin.H{})
+            c.Redirect(302, "/home-lab")
+            // c.HTML(200, "home-lab.html", gin.H{})
         }
     })
 

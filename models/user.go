@@ -22,5 +22,5 @@ type Aspire struct {
 	Student_id string `form:"student_id" binding:"required" gorm:"unique;not null"`
 	Lab_id string `form:"lab_id" binding:"required" gorm:"unique;not null"`
 	Reason string `form:"reason"`
-	Rank uint8 `form:"lank"`
+	Rank string `form:"lank"`
 }

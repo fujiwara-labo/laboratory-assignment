@@ -81,3 +81,10 @@ func GetAllLab(department string) []models.Lab {
 	db.Close()
 	return labs
 }
+
+// 志望研究室、理由、志望度をAspireに登録する処理
+func CreateAspire(student_id string, lab_id string, reason string, rank string) {
+	db := gormConnect()
+	// Insert処理
+	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason:reason, Rank:rank})
+}
