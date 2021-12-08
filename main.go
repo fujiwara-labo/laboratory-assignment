@@ -52,8 +52,8 @@ func main() {
     router.POST("/login", func(c *gin.Context) {
 
         // DBから取得したユーザーパスワード(Hash)
-        dbPassword := control.GetStudent(c.PostForm("student_id")).Password
-        log.Println(dbPassword)
+        student := control.GetStudent(c.PostForm("student_id"))
+        dbPassword := student.Password
         // フォームから取得したユーザーパスワード
         formPassword := c.PostForm("password")
 
@@ -64,7 +64,15 @@ func main() {
             c.Abort()
         } else {
             log.Println("Could log in")
-            c.HTML(200, "home-student.html", gin.H{})
+            labs := control.GetAllLab(student.Department)
+            log.Println(labs)
+            log.Println("collect get labs")
+
+            c.HTML(200, "home-student.html", gin.H{
+                "student_id": student.Student_id,
+                "department": student.Department,
+                "labs": labs,
+            })
         }
     })
 

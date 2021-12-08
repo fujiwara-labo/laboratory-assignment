@@ -72,3 +72,12 @@ func GetLab(lab_id string) models.Lab {
 	db.Close()
 	return lab
 }
+
+// ログインしている学生の学科に対応するLabを全件取得
+func GetAllLab(department string) []models.Lab {
+	db := gormConnect()
+	var labs []models.Lab
+	db.Where("department = ?",department).Find(&labs)
+	db.Close()
+	return labs
+}
