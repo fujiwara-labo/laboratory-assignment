@@ -31,6 +31,7 @@ func DbInit() {
     //構造体に基づいてテーブルを作成
 	db.AutoMigrate(&models.Student{})
 	db.AutoMigrate(&models.Lab{})
+	db.AutoMigrate(&models.Aspire{})
 }
 
 // 学生ユーザー登録処理
