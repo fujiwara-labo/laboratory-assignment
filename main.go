@@ -24,46 +24,91 @@ func main() {
         })
     })
     
-    // ユーザー登録、ログイン画面
-    router.GET("/login", func(c *gin.Context) {
+    // 学生ユーザー登録、ログイン画面
+    router.GET("/admin", func(c *gin.Context) {
 
-        c.HTML(200, "login.html", gin.H{})
+        c.HTML(200, "admin.html", gin.H{})
     })
-    // ユーザー登録
+    // 学生ユーザー登録
     router.POST("/signup", func(c *gin.Context) {
-        var form models.User
+        var form models.Student
         // バリデーション処理
         if err := c.Bind(&form); err != nil {
-            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             c.Abort()
         } else {
-            username := c.PostForm("username")
+            student_id := c.PostForm("student_id")
             password := c.PostForm("password")
+            department := c.PostForm("department")
             // 登録ユーザーが重複していた場合にはじく処理
-            if err := control.CreateUser(username, password); err != nil {
-                c.HTML(http.StatusBadRequest, "signup.html", gin.H{"err": err})
+            if err := control.CreateStudent(student_id, password, department); err != nil {
+                c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             }
             c.Redirect(302, "/")
         }
     })
 
-    // ユーザーログイン
+    // 学生ユーザーログイン
     router.POST("/login", func(c *gin.Context) {
 
         // DBから取得したユーザーパスワード(Hash)
-        dbPassword := control.GetUser(c.PostForm("username")).Password
+        dbPassword := control.GetStudent(c.PostForm("student_id")).Password
         log.Println(dbPassword)
         // フォームから取得したユーザーパスワード
         formPassword := c.PostForm("password")
 
         // ユーザーパスワードの比較
         if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
-            log.Println("ログインできませんでした")
-            c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+            log.Println("Could not log in")
+            c.HTML(http.StatusBadRequest, "admin.html", gin.H{"err": err})
             c.Abort()
         } else {
-            log.Println("ログインできました")
+            log.Println("Could log in")
             c.HTML(200, "home-student.html", gin.H{})
+        }
+    })
+
+    // 教員ユーザー登録、ログイン画面
+    router.GET("/admin-lab", func(c *gin.Context) {
+
+        c.HTML(200, "admin-lab.html", gin.H{})
+    })
+    // 教員ユーザー登録
+    router.POST("/signup-lab", func(c *gin.Context) {
+        var form models.Lab
+        // バリデーション処理
+        if err := c.Bind(&form); err != nil {
+            c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+            c.Abort()
+        } else {
+            lab_id := c.PostForm("lab_id")
+            password := c.PostForm("password")
+            department := c.PostForm("department")
+            // 登録ユーザーが重複していた場合にはじく処理
+            if err := control.CreateLab(lab_id, password, department); err != nil {
+                c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+            }
+            c.Redirect(302, "/")
+        }
+    })
+
+    // 教員ユーザーログイン
+    router.POST("/login-lab", func(c *gin.Context) {
+
+        // DBから取得したユーザーパスワード(Hash)
+        dbPassword := control.GetLab(c.PostForm("lab_id")).Password
+        log.Println(dbPassword)
+        // フォームから取得したユーザーパスワード
+        formPassword := c.PostForm("password")
+
+        // ユーザーパスワードの比較
+        if err := crypto.CompareHashAndPassword(dbPassword, formPassword); err != nil {
+            log.Println("Could not log in")
+            c.HTML(http.StatusBadRequest, "admin-lab.html", gin.H{"err": err})
+            c.Abort()
+        } else {
+            log.Println("Could log in")
+            c.HTML(200, "home-lab.html", gin.H{})
         }
     })
 

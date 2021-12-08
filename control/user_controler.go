@@ -29,26 +29,46 @@ func DbInit() {
 	// コネクション解放
 	defer db.Close()
     //構造体に基づいてテーブルを作成
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Student{})
+	db.AutoMigrate(&models.Lab{})
+	db.AutoMigrate(&models.Aspire{})
 }
 
-// ユーザー登録処理
-func CreateUser(username string, password string) []error {
+// 学生ユーザー登録処理
+func CreateStudent(student_id string, password string, department string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.User{Username: username, Password: passwordEncrypt}).GetErrors(); err != nil {
+	if err := db.Create(&models.Student{Student_id: student_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
-
 }
-// ユーザーを一件取得
-func GetUser(username string) models.User {
+// 教員ユーザー登録処理
+func CreateLab(lab_id string, password string, department string) []error {
+	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
-	var user models.User
-	db.First(&user, "username = ?", username)
+	defer db.Close()
+	// Insert処理
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+// 学生ユーザーを一件取得
+func GetStudent(student_id string) models.Student {
+	db := gormConnect()
+	var student models.Student
+	db.First(&student, "student_id = ?", student_id)
 	db.Close()
-	return user
+	return student
+}
+// 教員ユーザーを一件取得
+func GetLab(lab_id string) models.Lab {
+	db := gormConnect()
+	var lab models.Lab
+	db.First(&lab, "lab_id = ?", lab_id)
+	db.Close()
+	return lab
 }
