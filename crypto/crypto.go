@@ -4,7 +4,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// PasswordEncrypt パスワードをhash化
+// PasswordEncrypt パスワードをhash化（これだと弱め→solt,pepperがいいよ）
 func PasswordEncrypt(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hash), err
