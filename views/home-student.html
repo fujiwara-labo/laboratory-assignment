@@ -5,8 +5,27 @@
     <title>研究室配属システムトップ</title>
 </head>
 <body>
-    <h1 style="color: rebeccapurple;">{{.message}}</h1>
-    <h1>学生ホームページトップ</h1>
-    <h2>ログイン完了</h2>
+    <div align=center><h1>学生ホームページトップ</h1></div>
+    <!-- ログイン中の学生idを表示 -->
+    <div align=right>
+        <p>学生番号[{{.student_id}}]でログインしています</p>
+    </div>
+    <div align= left>
+        <h3>{{.department}}学科の研究室一覧</h3>
+        <ul>
+            {{ range .labs }}
+                <li>{{.Lab_id}}研究室</li>
+                <form action="/reason" method="post">
+                    <p>志望理由 :<input type="text" name="reason" style="display: inline-block;width: 100%;height: 100%;width: 100%;padding: 0.5em;border: 1px solid #999;box-sizing: border-box;background: #f2f2f2;margin: 0.5em 0;"></p>
+                    <p>志望度 :<select name="rank" size="1" >
+                        <option value="1">第1希望</option>
+                        <option value="2">第2希望</option>
+                        <option value="3">第3希望</option>
+                    </select></p>
+                    <p><input type="submit" value="送信" /></p>
+                </form>
+            {{ end }}
+        </ul>
+    </div>
 </body>
 </html>
