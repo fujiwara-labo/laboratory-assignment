@@ -80,11 +80,6 @@ func main() {
             log.Println(labs)
             log.Println("collect get labs")
 
-            // c.HTML(200, "home-student.html", gin.H{
-            //     "student_id": student.Student_id,
-            //     "department": student.Department,
-            //     "labs": labs,
-            // })
             c.Redirect(302, "/home-student")
         }
     })
@@ -96,6 +91,7 @@ func main() {
         log.Println(session.Get("loginUser"))
         c.HTML(200, "admin.html", gin.H{})
     })
+    // 学生ユーザーホーム画面
     router.GET("/home-student", func(c *gin.Context) {
         session := sessions.Default(c)
         // if !session {
@@ -105,6 +101,20 @@ func main() {
         student_id := session_id.(string)
         c.HTML(200, "home-student.html", gin.H{
             "student_id": student_id,
+        })
+    })
+    // 学生ユーザーの志望書提出フォーム画面
+    router.GET("/form", func(c *gin.Context) {
+        session := sessions.Default(c)
+
+        session_id := session.Get("loginUser")
+        student_id := session_id.(string)
+        student := control.GetStudent(student_id)
+        labs := control.GetAllLab(student.Department)
+        c.HTML(200, "form.html", gin.H{
+            "student_id": student.Student_id,
+            "department": student.Department,
+            "labs": labs,
         })
     })
     // フォームの取得
@@ -119,21 +129,6 @@ func main() {
         lab_id := c.PostForm("lab_id")
         control.CreateAspire(student_id, lab_id, reason, rank)
         c.Redirect(302, "/home-student")
-        // c.Redirect(302, "/")
-    })
-
-    router.GET("/form", func(c *gin.Context) {
-        session := sessions.Default(c)
-
-        session_id := session.Get("loginUser")
-        student_id := session_id.(string)
-        student := control.GetStudent(student_id)
-        labs := control.GetAllLab(student.Department)
-        c.HTML(200, "form.html", gin.H{
-            "student_id": student.Student_id,
-            "department": student.Department,
-            "labs": labs,
-        })
     })
 
     // 教員ユーザー登録、ログイン画面
@@ -179,7 +174,6 @@ func main() {
         } else {
             log.Println("Could log in")
             c.Redirect(302, "/home-lab")
-            // c.HTML(200, "home-lab.html", gin.H{})
         }
     })
 
