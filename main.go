@@ -75,6 +75,9 @@ func main() {
             })
         }
     })
+    router.POST("/logout",func(c *gin.Context) {
+        c.HTML(200, "admin.html", gin.H{})
+    })
 
     // 教員ユーザー登録、ログイン画面
     router.GET("/admin-lab", func(c *gin.Context) {

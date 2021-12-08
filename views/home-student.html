@@ -9,6 +9,9 @@
     <!-- ログイン中の学生idを表示 -->
     <div align=right>
         <p>学生番号[{{.student_id}}]でログインしています</p>
+        <form action="/logout" method="post">
+            <p><input type="submit" value="ログアウト" /></p>
+        </form>
     </div>
     <div align= left>
         <h3>{{.department}}学科の研究室一覧</h3>
