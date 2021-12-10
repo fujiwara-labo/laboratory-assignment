@@ -160,6 +160,33 @@ func main() {
 			c.Redirect(302, "/home-admin")
 		}
 	})
+	// 管理者ユーザー情報修正画面
+	router.GET("/fix", func(c *gin.Context) {
+
+		c.HTML(200, "fix.html", gin.H{})
+	})
+	// 学生データの変更
+	router.POST("fix-student", func(c *gin.Context) {
+		student_id := c.PostForm("student_id")
+		new_department := c.PostForm("department")
+		// 修正エラーの場合にログに表示
+		if err := control.FixStudent(student_id, "department", new_department); err != nil {
+			log.Println(err)
+			c.Redirect(302, "/home-admin")
+		}
+		c.Redirect(302, "/home-admin")
+	})
+	// Labデータの変更
+	router.POST("fix-lab", func(c *gin.Context) {
+		lab_id := c.PostForm("lab_id")
+		new_department := c.PostForm("department")
+		// 修正エラーの場合にログに表示
+		if err := control.FixLab(lab_id, "department", new_department); err != nil {
+			log.Println(err)
+			c.Redirect(302, "/home-admin")
+		}
+		c.Redirect(302, "/home-admin")
+	})
 	// 学生ユーザー登録、ログイン画面
 	router.GET("/login", func(c *gin.Context) {
 

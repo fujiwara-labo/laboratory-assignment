@@ -170,3 +170,25 @@ func DeleteAspire(aspire_id int) []error {
 	}
 	return nil
 }
+
+// student_idに対応する任意のデータの変更
+func FixStudent(student_id string, colum string, new_data string) []error {
+	db := gormConnect()
+	var student models.Student
+	// fix
+	if err := db.Model(&student).Where("student_id = ?", student_id).Update(colum, new_data).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// lab_idに対応する任意のデータの変更
+func FixLab(lab_id string, colum string, new_data string) []error {
+	db := gormConnect()
+	var lab models.Lab
+	// fix
+	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update(colum, new_data).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
