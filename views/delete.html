@@ -1,0 +1,35 @@
+<!-- code:web5-1 -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データ削除ページ</title>
+</head>
+    <body> 
+        <h1>学生データ削除はこちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <form action="/delete-student" method="post">
+                <p>学生ID :<input type="text" name="student_id" placeholder=""/></p>
+                <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+        <h1>研究室データ削除はこちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <form action="/delete-lab" method="post">
+                <p>研究室ID :<input type="text" name="lab_id" placeholder=""/></p>
+                <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+        <h1>志望書データ削除はこちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <form action="/delete-aspire" method="post">
+                <p>志望書ID :<input type="number" name="aspire_id" placeholder=""/></p>
+                <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+    </body>
+</html>

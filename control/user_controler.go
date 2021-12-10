@@ -1,8 +1,9 @@
 package control
 
-import(
+import (
 	"log"
-    "os"
+	"os"
+
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
 	"github.com/fujiwara-labo/laboratory-assignment.git/models"
 	"github.com/jinzhu/gorm"
@@ -15,20 +16,21 @@ func gormConnect() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-    DBMS := os.Getenv("DRIVER")
-    CONNECT := os.Getenv("DSN")
+	DBMS := os.Getenv("DRIVER")
+	CONNECT := os.Getenv("DSN")
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
 		panic(err.Error())
 	}
 	return db
 }
+
 // DBの初期化
 func DbInit() {
 	db := gormConnect()
 	// コネクション解放
 	defer db.Close()
-    //構造体に基づいてテーブルを作成
+	//構造体に基づいてテーブルを作成
 	db.AutoMigrate(&models.Student{})
 	log.Println("create Student table")
 	db.AutoMigrate(&models.Lab{})
@@ -50,17 +52,19 @@ func CreateStudent(student_id string, password string, department string) []erro
 	}
 	return nil
 }
+
 // 教員ユーザー登録処理
-func CreateLab(lab_id string, password string, department string) []error {
+func CreateLab(lab_id string, password string, department string, assign_max int) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
 }
+
 // 管理者ユーザー登録処理
 func CreateAdmin(admin_id string, password string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
@@ -72,6 +76,7 @@ func CreateAdmin(admin_id string, password string) []error {
 	}
 	return nil
 }
+
 // 学生ユーザーを一件取得
 func GetStudent(student_id string) models.Student {
 	db := gormConnect()
@@ -80,6 +85,7 @@ func GetStudent(student_id string) models.Student {
 	db.Close()
 	return student
 }
+
 // 教員ユーザーを一件取得
 func GetLab(lab_id string) models.Lab {
 	db := gormConnect()
@@ -88,6 +94,7 @@ func GetLab(lab_id string) models.Lab {
 	db.Close()
 	return lab
 }
+
 // 管理者ユーザーを一件取得
 func GetAdmin(admin_id string) models.Admin {
 	db := gormConnect()
@@ -96,11 +103,21 @@ func GetAdmin(admin_id string) models.Admin {
 	db.Close()
 	return admin
 }
-// ログインしている学生の学科に対応するLabを全件取得
+
+// 特定の学科に対応するLabを全件取得
+func GetAllStudent(department string) []models.Student {
+	db := gormConnect()
+	var students []models.Student
+	db.Where("department = ?", department).Find(&students)
+	db.Close()
+	return students
+}
+
+// 特定の学科に対応するLabを全件取得
 func GetAllLab(department string) []models.Lab {
 	db := gormConnect()
 	var labs []models.Lab
-	db.Where("department = ?",department).Find(&labs)
+	db.Where("department = ?", department).Find(&labs)
 	db.Close()
 	return labs
 }
@@ -109,7 +126,7 @@ func GetAllLab(department string) []models.Lab {
 func GetAllAspire(lab_id string) []models.Aspire {
 	db := gormConnect()
 	var aspires []models.Aspire
-	db.Where("lab_id = ?",lab_id).Find(&aspires)
+	db.Where("lab_id = ?", lab_id).Find(&aspires)
 	db.Close()
 	return aspires
 }
@@ -118,5 +135,64 @@ func GetAllAspire(lab_id string) []models.Aspire {
 func CreateAspire(student_id string, lab_id string, reason string, rank string) {
 	db := gormConnect()
 	// Insert処理
-	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason:reason, Rank:rank})
+	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason, Rank: rank})
+}
+
+// student_idに対応する学生の削除
+func DeleteStudent(student_id string) []error {
+	db := gormConnect()
+	var student models.Student
+	// delete処理
+	if err := db.Where("student_id = ?", student_id).Unscoped().Delete(&student).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// lab_idに対応する研究室の削除
+func DeleteLab(lab_id string) []error {
+	db := gormConnect()
+	var lab models.Lab
+	// delete処理
+	if err := db.Where("lab_id = ?", lab_id).Unscoped().Delete(&lab).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// aspire_idに対応する研究室の削除
+func DeleteAspire(aspire_id int) []error {
+	db := gormConnect()
+	var aspire models.Aspire
+	// delete処理
+	if err := db.Where("aspire_id = ?", aspire_id).Unscoped().Delete(&aspire).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// student_idに対応する任意のデータの変更
+func FixStudent(student_id string, new_data string) []error {
+	db := gormConnect()
+	var student models.Student
+	// fix
+	if err := db.Model(&student).Where("student_id = ?", student_id).Update("department", new_data).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// lab_idに対応する任意のデータの変更
+func FixLab(lab_id string, department string, assign_max int) []error {
+	db := gormConnect()
+	var lab models.Lab
+	// fix
+	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update("department", department).GetErrors(); err != nil {
+		log.Println(err)
+	}
+	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_max", assign_max).GetErrors(); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }

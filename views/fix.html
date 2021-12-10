@@ -1,0 +1,40 @@
+<!-- code:web5-1 -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データ修正ページ</title>
+</head>
+    <body> 
+        <h1>学生データ修正こちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <h4>変更がない項目は同じものを入力</h4>
+            <form action="/fix-student" method="post">
+                <p>学生ID :<input type="text" name="student_id" placeholder=""/></p>
+                <p>変更後の所属コースの選択 :<select name="department" size="1" >
+                    <option value="network">network</option>
+                    <option value="information">information</option>
+                    <option value="system">system</option>
+                </select></p>
+                <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+        <h1>研究室データ修正はこちら</h1>
+        <div class="input">
+            <p>{{.err}}</p>
+            <h4>変更がない項目は同じものを入力</h4>
+            <form action="/fix-lab" method="post">
+                <p>研究室ID :<input type="text" name="lab_id" placeholder=""/></p>
+                <p>変更後の所属コースの選択 :<select name="department" size="1" >
+                    <option value="network">network</option>
+                    <option value="information">information</option>
+                    <option value="system">system</option>
+                </select></p>
+                <p>配属可能人数 :<input type="number" name="assign_max" placeholder=""/></p>
+                <p><input type="submit" value="送信" /></p>
+            </form>
+        </div>
+    </body>
+</html>

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/fujiwara-labo/laboratory-assignment.git/control"
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
@@ -92,9 +93,103 @@ func main() {
 		// }
 		session_id := session.Get("loginUser")
 		admin_id := session_id.(string)
+		// 各学科ごとに学生を全件取得
+		students_network := control.GetAllStudent("network")
+		students_information := control.GetAllStudent("information")
+		students_system := control.GetAllStudent("system")
+
+		// 各学科ごとに研究室を全件取得
+		labs_network := control.GetAllLab("network")
+		labs_information := control.GetAllLab("information")
+		labs_system := control.GetAllLab("system")
 		c.HTML(200, "home-admin.html", gin.H{
-			"admin_id": admin_id,
+			"admin_id":             admin_id,
+			"students_network":     students_network,
+			"students_information": students_information,
+			"students_system":      students_system,
+			"labs_network":         labs_network,
+			"labs_information":     labs_information,
+			"labs_system":          labs_system,
 		})
+	})
+	// 管理者ユーザー情報新規登録画面
+	router.GET("/register", func(c *gin.Context) {
+
+		c.HTML(200, "register.html", gin.H{})
+	})
+	// 管理者ユーザー情報削除画面
+	router.GET("/delete", func(c *gin.Context) {
+
+		c.HTML(200, "delete.html", gin.H{})
+	})
+	// 学生データの削除
+	router.POST("delete-student", func(c *gin.Context) {
+		student_id := c.PostForm("student_id")
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteStudent(student_id); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
+	// 研究室データの削除
+	router.POST("delete-lab", func(c *gin.Context) {
+		lab_id := c.PostForm("lab_id")
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteLab(lab_id); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
+	// 志望書データの削除
+	router.POST("delete-aspire", func(c *gin.Context) {
+		aspire_id_int, err := strconv.Atoi(c.PostForm("aspire_id"))
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(aspire_id_int)
+		log.Printf("%T\n", aspire_id_int) // int
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteAspire(aspire_id_int); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
+	// 管理者ユーザー情報修正画面
+	router.GET("/fix", func(c *gin.Context) {
+
+		c.HTML(200, "fix.html", gin.H{})
+	})
+	// 学生データの変更
+	router.POST("fix-student", func(c *gin.Context) {
+		student_id := c.PostForm("student_id")
+		new_department := c.PostForm("department")
+		// 修正エラーの場合にログに表示
+		if err := control.FixStudent(student_id, new_department); err != nil {
+			log.Println(err)
+			c.Redirect(302, "/home-admin")
+		}
+		c.Redirect(302, "/home-admin")
+	})
+	// Labデータの変更
+	router.POST("fix-lab", func(c *gin.Context) {
+		lab_id := c.PostForm("lab_id")
+		new_department := c.PostForm("department")
+		assign_max_int, err := strconv.Atoi(c.PostForm("assign_max"))
+		if err != nil {
+			log.Println(err)
+		}
+		// 修正エラーの場合にログに表示
+		if err := control.FixLab(lab_id, new_department, assign_max_int); err != nil {
+			log.Println(err)
+			c.Redirect(302, "/home-admin")
+		}
+		c.Redirect(302, "/home-admin")
 	})
 	// 学生ユーザー登録、ログイン画面
 	router.GET("/login", func(c *gin.Context) {
@@ -106,7 +201,7 @@ func main() {
 		var form models.Student
 		// バリデーション処理
 		if err := c.Bind(&form); err != nil {
-			c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+			c.HTML(http.StatusBadRequest, "home-admin.html", gin.H{"err": err})
 			c.Abort()
 		} else {
 			student_id := c.PostForm("student_id")
@@ -114,9 +209,11 @@ func main() {
 			department := c.PostForm("department")
 			// 登録ユーザーが重複していた場合にはじく処理
 			if err := control.CreateStudent(student_id, password, department); err != nil {
-				c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+				c.Redirect(302, "/home-admin")
+				log.Println(err)
+			} else {
+				c.Redirect(302, "/home-admin")
 			}
-			c.Redirect(302, "/")
 		}
 	})
 
@@ -208,17 +305,24 @@ func main() {
 		var form models.Lab
 		// バリデーション処理
 		if err := c.Bind(&form); err != nil {
-			c.Redirect(302, "/login-lab")
+			c.HTML(http.StatusBadRequest, "home-admin.html", gin.H{"err": err})
 			c.Abort()
 		} else {
 			lab_id := c.PostForm("lab_id")
 			password := c.PostForm("password")
 			department := c.PostForm("department")
-			// 登録ユーザーが重複していた場合にはじく処理
-			if err := control.CreateLab(lab_id, password, department); err != nil {
-				c.Redirect(302, "/login-lab")
+			assign_max_int, err := strconv.Atoi(c.PostForm("assign_max"))
+			if err != nil {
+				log.Println(err)
 			}
-			c.Redirect(302, "/login-lab")
+			// 登録ユーザーが重複していた場合にはじく処理(errがある場合とない場合で処理が分けられていない)
+			if err := control.CreateLab(lab_id, password, department, assign_max_int); err != nil {
+				c.Redirect(302, "/home-admin")
+				log.Println(err)
+				// c.HTML(http.StatusBadRequest, "register.html", gin.H{"err": err})
+			} else {
+				c.Redirect(302, "/")
+			}
 		}
 	})
 	router.GET("/home-lab", func(c *gin.Context) {

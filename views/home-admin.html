@@ -6,17 +6,85 @@
 </head>
 <body>
     <div align=center><h1>管理者ページホーム</h1></div>
-    <!-- ログイン中の学生idを表示 -->
+    <!-- ログイン中の管理者idを表示 -->
     <div align=right>
         <p>管理者[{{.admin_id}}]でログインしています</p>
         <form action="/logout-admin" method="post">
             <p><input type="submit" value="ログアウト" /></p>
         </form>
     </div>
-    <!-- <div align=left>
+    <div style="width: auto; height: auto;">
+        <div style="padding-top: auto; display: flex; justify-content: space-evenly;">
+            <form action="/register" method="get">
+                <p><input type="submit" value="データの新規登録画面" /></p>
+            </form>
+            <form action="/delete" method="get">
+                <p><input type="submit" value="データの削除画面" /></p>
+            </form>
+            <form action="/fix" method="get">
+                <p><input type="submit" value="データの修正画面" /></p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 学科ごとに登録している学生を全件表示 -->
+    <div align= left>
+        <h3>登録している学生一覧</h3>
+        <h4>network学科の学生一覧</h4>
         <ul>
-            <li><a href="/form">2021年度</li>
+            {{ range .students_network }}
+                <li>学生ID：{{.Student_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+            {{ end }}
         </ul>
-    </div> -->
+        <h4>information学科の学生一覧</h4>
+        <ul>
+            {{ range .students_information }}
+                <li>学生ID：{{.Student_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+            {{ end }}
+        </ul>
+        <h4>system学科の学生一覧</h4>
+        <ul>
+            {{ range .students_system }}
+                <li>学生ID：{{.Student_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+            {{ end }}
+        </ul>
+    </div>
+    <!-- 学科ごとに登録している研究室を全件表示 -->
+    <div align= left>
+        <h3>登録している研究室一覧</h3>
+        <h4>network学科の研究室一覧</h4>
+        <ul>
+            {{ range .labs_network }}
+                <li>研究室ID：{{.Lab_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+                <li>受け入れ可能人数：{{.Assign_max}}</li>
+            {{ end }}
+        </ul>
+        <h4>information学科の研究室一覧</h4>
+        <ul>
+            {{ range .labs_information }}
+                <li>研究室ID：{{.Lab_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+                <li>受け入れ可能人数：{{.Assign_max}}</li>
+            {{ end }}
+        </ul>
+        <h4>system学科の研究室一覧</h4>
+        <ul>
+            {{ range .labs_system }}
+                <li>研究室ID：{{.Lab_id}}</li>
+                <li>パスワード：{{.Password}}</li>
+                <li>学科：{{.Department}}</li>
+                <li>受け入れ可能人数：{{.Assign_max}}</li>
+            {{ end }}
+        </ul>
+    </div>
 </body>
 </html>
