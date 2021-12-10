@@ -16,19 +16,5 @@
                 <p><input type="submit" value="送信" /></p>
             </form>
         </div>
-        <h1>新規登録はこちら</h1>
-        <div class="input">
-            <p>{{.err}}</p>
-            <form action="/signup-lab" method="post">
-                <p>ユーザー名 :<input type="text" name="lab_id" placeholder=""/></p>
-                <p>パスワード :<input type="text" name="password" placeholder=""/></p>
-                <p>所属コース :<select name="department" size="1" >
-                    <option value="network">network</option>
-                    <option value="information">information</option>
-                    <option value="system">system</option>
-                </select></p>
-                <p><input type="submit" value="登録" /></p>
-            </form>
-        </div>
     </body>
 </html>

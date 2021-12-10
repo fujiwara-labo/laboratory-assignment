@@ -111,6 +111,11 @@ func main() {
 			"labs_system":          labs_system,
 		})
 	})
+	// 管理者ユーザー情報新規登録画面
+	router.GET("/register", func(c *gin.Context) {
+
+		c.HTML(200, "register.html", gin.H{})
+	})
 	// 学生ユーザー登録、ログイン画面
 	router.GET("/login", func(c *gin.Context) {
 
@@ -121,7 +126,7 @@ func main() {
 		var form models.Student
 		// バリデーション処理
 		if err := c.Bind(&form); err != nil {
-			c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+			c.HTML(http.StatusBadRequest, "home-admin.html", gin.H{"err": err})
 			c.Abort()
 		} else {
 			student_id := c.PostForm("student_id")
@@ -129,9 +134,10 @@ func main() {
 			department := c.PostForm("department")
 			// 登録ユーザーが重複していた場合にはじく処理
 			if err := control.CreateStudent(student_id, password, department); err != nil {
-				c.HTML(http.StatusBadRequest, "login.html", gin.H{"err": err})
+				c.Redirect(302, "/home-admin")
+			} else {
+				c.Redirect(302, "/home-admin")
 			}
-			c.Redirect(302, "/")
 		}
 	})
 
@@ -223,17 +229,19 @@ func main() {
 		var form models.Lab
 		// バリデーション処理
 		if err := c.Bind(&form); err != nil {
-			c.Redirect(302, "/login-lab")
+			c.HTML(http.StatusBadRequest, "home-admin.html", gin.H{"err": err})
 			c.Abort()
 		} else {
 			lab_id := c.PostForm("lab_id")
 			password := c.PostForm("password")
 			department := c.PostForm("department")
-			// 登録ユーザーが重複していた場合にはじく処理
+			// 登録ユーザーが重複していた場合にはじく処理(errがある場合とない場合で処理が分けられていない)
 			if err := control.CreateLab(lab_id, password, department); err != nil {
-				c.Redirect(302, "/login-lab")
+				c.Redirect(302, "/home-admin")
+				// c.HTML(http.StatusBadRequest, "register.html", gin.H{"err": err})
+			} else {
+				c.Redirect(302, "/")
 			}
-			c.Redirect(302, "/login-lab")
 		}
 	})
 	router.GET("/home-lab", func(c *gin.Context) {
