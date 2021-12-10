@@ -32,9 +32,11 @@ func DbInit() {
 	db.AutoMigrate(&models.Student{})
 	log.Println("create Student table")
 	db.AutoMigrate(&models.Lab{})
-	log.Println("create Student table")
+	log.Println("create Lab table")
 	db.AutoMigrate(&models.Aspire{})
-	log.Println("create Student table")
+	log.Println("create Aspire table")
+	db.AutoMigrate(&models.Admin{})
+	log.Println("create Admin table")
 }
 
 // 学生ユーザー登録処理
@@ -59,6 +61,17 @@ func CreateLab(lab_id string, password string, department string) []error {
 	}
 	return nil
 }
+// 管理者ユーザー登録処理
+func CreateAdmin(admin_id string, password string) []error {
+	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
+	db := gormConnect()
+	defer db.Close()
+	// Insert処理
+	if err := db.Create(&models.Admin{Admin_id: admin_id, Password: passwordEncrypt}).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
 // 学生ユーザーを一件取得
 func GetStudent(student_id string) models.Student {
 	db := gormConnect()
@@ -75,7 +88,14 @@ func GetLab(lab_id string) models.Lab {
 	db.Close()
 	return lab
 }
-
+// 管理者ユーザーを一件取得
+func GetAdmin(admin_id string) models.Admin {
+	db := gormConnect()
+	var admin models.Admin
+	db.First(&admin, "admin_id = ?", admin_id)
+	db.Close()
+	return admin
+}
 // ログインしている学生の学科に対応するLabを全件取得
 func GetAllLab(department string) []models.Lab {
 	db := gormConnect()

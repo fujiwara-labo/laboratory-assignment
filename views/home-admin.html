@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>管理者ページトップ</title>
+</head>
+<body>
+    <div align=center><h1>管理者ページホーム</h1></div>
+    <!-- ログイン中の学生idを表示 -->
+    <div align=right>
+        <p>管理者[{{.admin_id}}]でログインしています</p>
+        <form action="/logout-admin" method="post">
+            <p><input type="submit" value="ログアウト" /></p>
+        </form>
+    </div>
+    <!-- <div align=left>
+        <ul>
+            <li><a href="/form">2021年度</li>
+        </ul>
+    </div> -->
+</body>
+</html>
