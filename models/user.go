@@ -25,3 +25,9 @@ type Aspire struct {
 	Reason string `form:"reason"`
 	Rank string `form:"lank"`
 }
+// Admin モデルの宣言
+type Admin struct {
+	gorm.Model
+	Admin_id string `form:"admin_id" binding:"required" gorm:"unique;not null"`
+	Password string `form:"password" binding:"required"`
+}
