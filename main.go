@@ -92,8 +92,23 @@ func main() {
 		// }
 		session_id := session.Get("loginUser")
 		admin_id := session_id.(string)
+		// 各学科ごとに学生を全件取得
+		students_network := control.GetAllStudent("network")
+		students_information := control.GetAllStudent("information")
+		students_system := control.GetAllStudent("system")
+
+		// 各学科ごとに研究室を全件取得
+		labs_network := control.GetAllLab("network")
+		labs_information := control.GetAllLab("information")
+		labs_system := control.GetAllLab("system")
 		c.HTML(200, "home-admin.html", gin.H{
-			"admin_id": admin_id,
+			"admin_id":             admin_id,
+			"students_network":     students_network,
+			"students_information": students_information,
+			"students_system":      students_system,
+			"labs_network":         labs_network,
+			"labs_information":     labs_information,
+			"labs_system":          labs_system,
 		})
 	})
 	// 学生ユーザー登録、ログイン画面

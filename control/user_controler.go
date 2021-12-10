@@ -1,8 +1,9 @@
 package control
 
-import(
+import (
 	"log"
-    "os"
+	"os"
+
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
 	"github.com/fujiwara-labo/laboratory-assignment.git/models"
 	"github.com/jinzhu/gorm"
@@ -15,20 +16,21 @@ func gormConnect() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-    DBMS := os.Getenv("DRIVER")
-    CONNECT := os.Getenv("DSN")
+	DBMS := os.Getenv("DRIVER")
+	CONNECT := os.Getenv("DSN")
 	db, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
 		panic(err.Error())
 	}
 	return db
 }
+
 // DBの初期化
 func DbInit() {
 	db := gormConnect()
 	// コネクション解放
 	defer db.Close()
-    //構造体に基づいてテーブルを作成
+	//構造体に基づいてテーブルを作成
 	db.AutoMigrate(&models.Student{})
 	log.Println("create Student table")
 	db.AutoMigrate(&models.Lab{})
@@ -50,6 +52,7 @@ func CreateStudent(student_id string, password string, department string) []erro
 	}
 	return nil
 }
+
 // 教員ユーザー登録処理
 func CreateLab(lab_id string, password string, department string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
@@ -61,6 +64,7 @@ func CreateLab(lab_id string, password string, department string) []error {
 	}
 	return nil
 }
+
 // 管理者ユーザー登録処理
 func CreateAdmin(admin_id string, password string) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
@@ -72,6 +76,7 @@ func CreateAdmin(admin_id string, password string) []error {
 	}
 	return nil
 }
+
 // 学生ユーザーを一件取得
 func GetStudent(student_id string) models.Student {
 	db := gormConnect()
@@ -80,6 +85,7 @@ func GetStudent(student_id string) models.Student {
 	db.Close()
 	return student
 }
+
 // 教員ユーザーを一件取得
 func GetLab(lab_id string) models.Lab {
 	db := gormConnect()
@@ -88,6 +94,7 @@ func GetLab(lab_id string) models.Lab {
 	db.Close()
 	return lab
 }
+
 // 管理者ユーザーを一件取得
 func GetAdmin(admin_id string) models.Admin {
 	db := gormConnect()
@@ -96,11 +103,21 @@ func GetAdmin(admin_id string) models.Admin {
 	db.Close()
 	return admin
 }
-// ログインしている学生の学科に対応するLabを全件取得
+
+// 特定の学科に対応するLabを全件取得
+func GetAllStudent(department string) []models.Student {
+	db := gormConnect()
+	var students []models.Student
+	db.Where("department = ?", department).Find(&students)
+	db.Close()
+	return students
+}
+
+// 特定の学科に対応するLabを全件取得
 func GetAllLab(department string) []models.Lab {
 	db := gormConnect()
 	var labs []models.Lab
-	db.Where("department = ?",department).Find(&labs)
+	db.Where("department = ?", department).Find(&labs)
 	db.Close()
 	return labs
 }
@@ -109,7 +126,7 @@ func GetAllLab(department string) []models.Lab {
 func GetAllAspire(lab_id string) []models.Aspire {
 	db := gormConnect()
 	var aspires []models.Aspire
-	db.Where("lab_id = ?",lab_id).Find(&aspires)
+	db.Where("lab_id = ?", lab_id).Find(&aspires)
 	db.Close()
 	return aspires
 }
@@ -118,5 +135,5 @@ func GetAllAspire(lab_id string) []models.Aspire {
 func CreateAspire(student_id string, lab_id string, reason string, rank string) {
 	db := gormConnect()
 	// Insert処理
-	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason:reason, Rank:rank})
+	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason, Rank: rank})
 }
