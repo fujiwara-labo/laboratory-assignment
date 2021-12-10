@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/fujiwara-labo/laboratory-assignment.git/control"
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
@@ -116,6 +117,49 @@ func main() {
 
 		c.HTML(200, "register.html", gin.H{})
 	})
+	// 管理者ユーザー情報削除画面
+	router.GET("/delete", func(c *gin.Context) {
+
+		c.HTML(200, "delete.html", gin.H{})
+	})
+	// 学生データの削除
+	router.POST("delete-student", func(c *gin.Context) {
+		student_id := c.PostForm("student_id")
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteStudent(student_id); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
+	// 研究室データの削除
+	router.POST("delete-lab", func(c *gin.Context) {
+		lab_id := c.PostForm("lab_id")
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteLab(lab_id); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
+	// 志望書データの削除
+	router.POST("delete-aspire", func(c *gin.Context) {
+		aspire_id_int, err := strconv.Atoi(c.PostForm("aspire_id"))
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(aspire_id_int)
+		log.Printf("%T\n", aspire_id_int) // int
+		// 削除エラーの場合にログに表示
+		if err := control.DeleteAspire(aspire_id_int); err != nil {
+			c.Redirect(302, "/home-admin")
+			log.Println(err)
+		} else {
+			c.Redirect(302, "/home-admin")
+		}
+	})
 	// 学生ユーザー登録、ログイン画面
 	router.GET("/login", func(c *gin.Context) {
 
@@ -135,6 +179,7 @@ func main() {
 			// 登録ユーザーが重複していた場合にはじく処理
 			if err := control.CreateStudent(student_id, password, department); err != nil {
 				c.Redirect(302, "/home-admin")
+				log.Println(err)
 			} else {
 				c.Redirect(302, "/home-admin")
 			}
@@ -238,6 +283,7 @@ func main() {
 			// 登録ユーザーが重複していた場合にはじく処理(errがある場合とない場合で処理が分けられていない)
 			if err := control.CreateLab(lab_id, password, department); err != nil {
 				c.Redirect(302, "/home-admin")
+				log.Println(err)
 				// c.HTML(http.StatusBadRequest, "register.html", gin.H{"err": err})
 			} else {
 				c.Redirect(302, "/")

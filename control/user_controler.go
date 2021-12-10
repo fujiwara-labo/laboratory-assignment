@@ -137,3 +137,36 @@ func CreateAspire(student_id string, lab_id string, reason string, rank string) 
 	// Insert処理
 	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason, Rank: rank})
 }
+
+// student_idに対応する学生の削除
+func DeleteStudent(student_id string) []error {
+	db := gormConnect()
+	var student models.Student
+	// delete処理
+	if err := db.Where("student_id = ?", student_id).Unscoped().Delete(&student).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// lab_idに対応する研究室の削除
+func DeleteLab(lab_id string) []error {
+	db := gormConnect()
+	var lab models.Lab
+	// delete処理
+	if err := db.Where("lab_id = ?", lab_id).Unscoped().Delete(&lab).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// aspire_idに対応する研究室の削除
+func DeleteAspire(aspire_id int) []error {
+	db := gormConnect()
+	var aspire models.Aspire
+	// delete処理
+	if err := db.Where("aspire_id = ?", aspire_id).Unscoped().Delete(&aspire).GetErrors(); err != nil {
+		return err
+	}
+	return nil
+}
