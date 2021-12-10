@@ -170,7 +170,7 @@ func main() {
 		student_id := c.PostForm("student_id")
 		new_department := c.PostForm("department")
 		// 修正エラーの場合にログに表示
-		if err := control.FixStudent(student_id, "department", new_department); err != nil {
+		if err := control.FixStudent(student_id, new_department); err != nil {
 			log.Println(err)
 			c.Redirect(302, "/home-admin")
 		}
@@ -180,8 +180,12 @@ func main() {
 	router.POST("fix-lab", func(c *gin.Context) {
 		lab_id := c.PostForm("lab_id")
 		new_department := c.PostForm("department")
+		assign_max_int, err := strconv.Atoi(c.PostForm("assign_max"))
+		if err != nil {
+			log.Println(err)
+		}
 		// 修正エラーの場合にログに表示
-		if err := control.FixLab(lab_id, "department", new_department); err != nil {
+		if err := control.FixLab(lab_id, new_department, assign_max_int); err != nil {
 			log.Println(err)
 			c.Redirect(302, "/home-admin")
 		}
@@ -307,8 +311,12 @@ func main() {
 			lab_id := c.PostForm("lab_id")
 			password := c.PostForm("password")
 			department := c.PostForm("department")
+			assign_max_int, err := strconv.Atoi(c.PostForm("assign_max"))
+			if err != nil {
+				log.Println(err)
+			}
 			// 登録ユーザーが重複していた場合にはじく処理(errがある場合とない場合で処理が分けられていない)
-			if err := control.CreateLab(lab_id, password, department); err != nil {
+			if err := control.CreateLab(lab_id, password, department, assign_max_int); err != nil {
 				c.Redirect(302, "/home-admin")
 				log.Println(err)
 				// c.HTML(http.StatusBadRequest, "register.html", gin.H{"err": err})

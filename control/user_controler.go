@@ -54,12 +54,12 @@ func CreateStudent(student_id string, password string, department string) []erro
 }
 
 // 教員ユーザー登録処理
-func CreateLab(lab_id string, password string, department string) []error {
+func CreateLab(lab_id string, password string, department string, assign_max int) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -172,22 +172,26 @@ func DeleteAspire(aspire_id int) []error {
 }
 
 // student_idに対応する任意のデータの変更
-func FixStudent(student_id string, colum string, new_data string) []error {
+func FixStudent(student_id string, new_data string) []error {
 	db := gormConnect()
 	var student models.Student
 	// fix
-	if err := db.Model(&student).Where("student_id = ?", student_id).Update(colum, new_data).GetErrors(); err != nil {
+	if err := db.Model(&student).Where("student_id = ?", student_id).Update("department", new_data).GetErrors(); err != nil {
 		return err
 	}
 	return nil
 }
 
 // lab_idに対応する任意のデータの変更
-func FixLab(lab_id string, colum string, new_data string) []error {
+func FixLab(lab_id string, department string, assign_max int) []error {
 	db := gormConnect()
 	var lab models.Lab
 	// fix
-	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update(colum, new_data).GetErrors(); err != nil {
+	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update("department", department).GetErrors(); err != nil {
+		log.Println(err)
+	}
+	if err := db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_max", assign_max).GetErrors(); err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
