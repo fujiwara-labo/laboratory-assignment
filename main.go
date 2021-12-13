@@ -364,6 +364,9 @@ func main() {
 			c.Redirect(302, "/home-lab")
 		}
 	})
+	// 配属希望調査
+	router.POST("/assign", func(c *gin.Context) {
+	})
 
 	router.Run(":8080")
 
