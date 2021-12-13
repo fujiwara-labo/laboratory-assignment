@@ -10,16 +10,17 @@ type Student struct {
 	Student_id string `form:"student_id" binding:"required" gorm:"unique;not null"`
 	Password   string `form:"password" binding:"required"`
 	Department string `form:"department" binding:"required"`
-	// Assign_lab string
+	Assign_lab string
 }
 
 // Labモデルの宣言
 type Lab struct {
 	gorm.Model
-	Lab_id     string `form:"lab_id" binding:"required" gorm:"unique;not null"`
-	Password   string `form:"password" binding:"required"`
-	Department string `form:"department" binding:"required"`
-	Assign_max int
+	Lab_id      string `form:"lab_id" binding:"required" gorm:"unique;not null"`
+	Password    string `form:"password" binding:"required"`
+	Department  string `form:"department" binding:"required"`
+	Assign_max  int
+	Assign_flag bool
 }
 
 // Aspireモデルの宣言(なぜかaspire_idは自動インクリメントになっている)
