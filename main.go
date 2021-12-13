@@ -325,6 +325,7 @@ func main() {
 			}
 		}
 	})
+	// 研究室ページホーム
 	router.GET("/home-lab", func(c *gin.Context) {
 		session := sessions.Default(c)
 		// if !session {
@@ -332,8 +333,29 @@ func main() {
 		// }
 		session_id := session.Get("loginUser")
 		lab_id := session_id.(string)
-		aspires := control.GetAllAspire(lab_id)
+		// Studentsからlab_idで配属が決定した学生を取得
+		students := control.GetAllAssignStudent(lab_id)
+		flag := control.CompMaxAssingStudent(lab_id)
+		text := "配属学生が決定していません"
+		if flag {
+			text = "配属学生が決定していません"
+		} else {
+			text = "配属学生が決定しました"
+		}
 		c.HTML(200, "home-lab.html", gin.H{
+			"lab_id":   lab_id,
+			"message":  text,
+			"students": students,
+		})
+	})
+	// 配属学生決定ページ
+	router.GET("/assign-lab", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session_id := session.Get("loginUser")
+		lab_id := session_id.(string)
+		// Studentsからlab_idで配属が決定した学生を取得
+		aspires := control.GetAllAspire(lab_id)
+		c.HTML(200, "assign-lab.html", gin.H{
 			"lab_id":  lab_id,
 			"lab_id2": lab_id,
 			"aspires": aspires,
@@ -364,8 +386,20 @@ func main() {
 			c.Redirect(302, "/home-lab")
 		}
 	})
-	// 配属希望調査
+	// 配属希望調査(研究室配属の自動決定) home-admin
 	router.POST("/assign", func(c *gin.Context) {
+		control.AssignResarch()
+		c.Redirect(302, "/home-admin")
+	})
+	// 研究室配属の手動決定 assign-lab
+	router.POST("/select-students", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session_id := session.Get("loginUser")
+		lab_id := session_id.(string)
+
+		student_id := c.PostForm("student_id")
+		control.AssignStudent(student_id, lab_id)
+		c.Redirect(302, "/assign-lab")
 	})
 
 	router.Run(":8080")

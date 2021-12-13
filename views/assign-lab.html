@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>研究室配属システム</title>
+</head>
+<body>
+    <div align=center><h1>研究室配属決定処理ページ</h1></div>
+    <!-- ログイン中のidを表示 -->
+    <div align=right>
+        <p>[{{.lab_id}}]でログインしています</p>
+        <form action="/logout" method="post">
+            <p><input type="submit" value="ログアウト" /></p>
+        </form>
+    </div>
+    <!-- 配属が未決定の場合の表示 -->
+    <div align= left>
+        <h3>{{.lab_id2}}研究室を志望する学生一覧</h3>
+        <ul>
+            {{ range .aspires }}
+                <li>学生番号：{{.Student_id}}</li>
+                <li>志望理由：{{.Reason}}</li>
+                <li>志望度：{{.Rank}}</li>
+            {{ end }}
+        </ul>
+    </div>
+    <form action="/select-students" method="post">
+        <p>受け入れ決定学生 :<input type="text" name="student_id" placeholder=""/></p></p>
+    <p><input type="submit" value="送信" /></p>
+    </form>
+</body>
+</html>

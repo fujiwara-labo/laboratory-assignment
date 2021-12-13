@@ -131,6 +131,14 @@ func GetAllAspire(lab_id string) []models.Aspire {
 	return aspires
 }
 
+// Studentからassign_labがlab_idに一致する学生を全件取得
+func GetAllAssignStudent(lab_id string) []models.Student {
+	db := gormConnect()
+	var students []models.Student
+	db.Where("assign_lab = ?", lab_id).Find(&students)
+	return students
+}
+
 // 志望研究室、理由、志望度をAspireに登録する処理
 func CreateAspire(student_id string, lab_id string, reason string, rank string) {
 	db := gormConnect()
@@ -225,6 +233,21 @@ func CompMaxSubmit(submit_num int, assign_max int) bool {
 	}
 }
 
+// 任意の研究室に対してassign_maxと配属決定学生数を比較する関数
+func CompMaxAssingStudent(lab_id string) bool {
+	db := gormConnect()
+	var students []models.Student
+	var lab models.Lab
+	db.Where("assign_lab = ?", lab_id).Find(&students)
+
+	if len(students) >= lab.Assign_max {
+		// 配属決定学生が配属可能上限以上である
+		return true
+	} else {
+		return false
+	}
+}
+
 // 配属希望調査全体の関数
 // to do : Studentのassign_labを決定する、希望数が多い場合は希望書を返す
 func AssignResarch() {
@@ -239,19 +262,20 @@ func AssignResarch() {
 
 		if flag {
 			// 希望学生数が配属上限数より多い場合 → false
-			// db.Where("lab_id = ?", lab.Lab_id).Find(&aspires)
-			// true_aspires := append(true_aspires, aspires)
-			// db.Close()
+			// 手動で配属学生を決定(AssignStudent)
 		} else {
 			// 希望学生数が配属上限数より少ない場合→配属決定(true)
 			// 希望書を上記の条件を満たす研究室にいくつか提出している学生は複数の研究室に配属してしまう問題
-			db.Where("lab_id = ?", lab.Lab_id).Find(&aspires)
+			err := db.Where("lab_id = ?", lab.Lab_id).Find(&aspires).GetErrors()
+			log.Println(err)
 			for _, aspire := range aspires {
+				log.Println(aspires)
 				db.Model(&students).Where("student_id = ?", aspire.Student_id).Update("assign_lab", lab.Lab_id)
+				db.Model(&lab).Where("lab_id = ?", lab.Lab_id).Update("assign_flag", true)
 			}
-			db.Close()
 		}
 	}
+	db.Close()
 }
 
 // 希望数が定員数を超えていた場合の配属決定処理の関数
@@ -260,7 +284,13 @@ func AssignStudent(student_id string, lab_id string) {
 	var student models.Student
 	var lab models.Lab
 
-	db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab.Lab_id)
-	db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)
+	// db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id)
+	err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
+	// db.Create(&models.Student{Assign_lab: lab_id})
+	log.Println(err)
+	flag := CompMaxAssingStudent(lab.Lab_id)
+	if flag {
+		db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)
+	}
 	db.Close()
 }

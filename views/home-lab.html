@@ -6,20 +6,23 @@
 </head>
 <body>
     <div align=center><h1>教員用ページホーム</h1></div>
-    <!-- ログイン中の学生idを表示 -->
+    <!-- ログイン中のidを表示 -->
     <div align=right>
-        <p>学生番号[{{.lab_id}}]でログインしています</p>
+        <p>[{{.lab_id}}]でログインしています</p>
         <form action="/logout" method="post">
             <p><input type="submit" value="ログアウト" /></p>
         </form>
     </div>
+    <h3>{{.message}}</h3>
+    <form action="/assign-lab" method="get">
+        <p><input type="submit" value="配属学生選択" /></p>
+    </form>
     <div align= left>
-        <h3>{{.lab_id2}}学科を志望する学生一覧</h3>
+        <!-- 配属が決定した学生を表示 -->
+        <h3>配属が決定した学生</h3>
         <ul>
-            {{ range .aspires }}
+            {{ range .students }}
                 <li>学生番号：{{.Student_id}}</li>
-                <li>志望理由：{{.Reason}}</li>
-                <li>志望度：{{.Rank}}</li>
             {{ end }}
         </ul>
     </div>
