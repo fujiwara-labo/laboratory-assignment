@@ -59,7 +59,7 @@ func CreateLab(lab_id string, password string, department string, assign_max int
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max}).GetErrors(); err != nil {
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max, Assign_flag: false}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -104,7 +104,7 @@ func GetAdmin(admin_id string) models.Admin {
 	return admin
 }
 
-// 特定の学科に対応するLabを全件取得
+// 特定の学科に対応するStudentを全件取得
 func GetAllStudent(department string) []models.Student {
 	db := gormConnect()
 	var students []models.Student
@@ -122,6 +122,15 @@ func GetAllLab(department string) []models.Lab {
 	return labs
 }
 
+// 志望書一覧を取得
+func GetAspires() []models.Aspire {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Find(&aspires)
+	db.Close()
+	return aspires
+}
+
 // ログインしている研究室の志望書一覧を取得
 func GetAllAspire(lab_id string) []models.Aspire {
 	db := gormConnect()
@@ -129,6 +138,14 @@ func GetAllAspire(lab_id string) []models.Aspire {
 	db.Where("lab_id = ?", lab_id).Find(&aspires)
 	db.Close()
 	return aspires
+}
+
+// Studentからassign_labがlab_idに一致する学生を全件取得
+func GetAllAssignStudent(lab_id string) []models.Student {
+	db := gormConnect()
+	var students []models.Student
+	db.Where("assign_lab = ?", lab_id).Find(&students)
+	return students
 }
 
 // 志望研究室、理由、志望度をAspireに登録する処理
@@ -195,4 +212,94 @@ func FixLab(lab_id string, department string, assign_max int) []error {
 		return err
 	}
 	return nil
+}
+
+// assign_flagがfalseのlabを全件取得
+func GetAllFalseLab() []models.Lab {
+	db := gormConnect()
+	var labs []models.Lab
+	db.Where("assign_flag = ?", false).Find(&labs)
+	db.Close()
+	return labs
+}
+
+// Aspireからlab_idごとに提出学生数を取得する関数
+func GetSubmitNum(lab_id string) int {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Where("lab_id = ?", lab_id).Find(&aspires)
+	db.Close()
+	submit_num := len(aspires)
+	return submit_num
+}
+
+// assign_maxと提出学生数を比較する関数
+func CompMaxSubmit(submit_num int, assign_max int) bool {
+	if submit_num > assign_max {
+		return true
+	} else {
+		return false
+	}
+}
+
+// 任意の研究室に対してassign_maxと配属決定学生数を比較する関数
+func CompMaxAssingStudent(lab_id string) bool {
+	db := gormConnect()
+	var students []models.Student
+	var lab models.Lab
+	db.Where("assign_lab = ?", lab_id).Find(&students)
+
+	if len(students) >= lab.Assign_max {
+		// 配属決定学生が配属可能上限以上である
+		return true
+	} else {
+		return false
+	}
+}
+
+// 配属希望調査全体の関数
+// to do : Studentのassign_labを決定する、希望数が多い場合は希望書を返す
+func AssignResarch() {
+	db := gormConnect()
+	var students []models.Student
+	var aspires []models.Aspire
+	labs := GetAllFalseLab()
+
+	for _, lab := range labs {
+		submit_num := GetSubmitNum(lab.Lab_id)
+		flag := CompMaxSubmit(submit_num, lab.Assign_max)
+
+		if flag {
+			// 希望学生数が配属上限数より多い場合 → false
+			// 手動で配属学生を決定(AssignStudent)
+		} else {
+			// 希望学生数が配属上限数より少ない場合→配属決定(true)
+			// 希望書を上記の条件を満たす研究室にいくつか提出している学生は複数の研究室に配属してしまう問題
+			err := db.Where("lab_id = ?", lab.Lab_id).Find(&aspires).GetErrors()
+			log.Println(err)
+			for _, aspire := range aspires {
+				log.Println(aspires)
+				db.Model(&students).Where("student_id = ?", aspire.Student_id).Update("assign_lab", lab.Lab_id)
+				db.Model(&lab).Where("lab_id = ?", lab.Lab_id).Update("assign_flag", true)
+			}
+		}
+	}
+	db.Close()
+}
+
+// 希望数が定員数を超えていた場合の配属決定処理の関数
+func AssignStudent(student_id string, lab_id string) {
+	db := gormConnect()
+	var student models.Student
+	var lab models.Lab
+
+	// db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id)
+	err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
+	// db.Create(&models.Student{Assign_lab: lab_id})
+	log.Println(err)
+	flag := CompMaxAssingStudent(lab.Lab_id)
+	if flag {
+		db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)
+	}
+	db.Close()
 }
