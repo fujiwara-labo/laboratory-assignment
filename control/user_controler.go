@@ -122,6 +122,15 @@ func GetAllLab(department string) []models.Lab {
 	return labs
 }
 
+// 志望書一覧を取得
+func GetAspires() []models.Aspire {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Find(&aspires)
+	db.Close()
+	return aspires
+}
+
 // ログインしている研究室の志望書一覧を取得
 func GetAllAspire(lab_id string) []models.Aspire {
 	db := gormConnect()

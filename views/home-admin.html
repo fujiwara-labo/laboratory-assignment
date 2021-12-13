@@ -89,5 +89,18 @@
             {{ end }}
         </ul>
     </div>
+    <!-- 学科ごとに登録している研究室を全件表示 -->
+    <div align= left>
+        <h3>提出された志望書一覧</h3>
+        <ul>
+            {{ range .aspires }}
+                <li>志望書ID：{{.Aspire_id}}</li>
+                <li>パスワード：{{.Student_id}}</li>
+                <li>学科：{{.Lab_id}}</li>
+                <li>受け入れ可能人数：{{.Reason}}</li>
+                <li>受け入れ可能人数：{{.Rank}}</li>
+            {{ end }}
+        </ul>
+    </div>
 </body>
 </html>

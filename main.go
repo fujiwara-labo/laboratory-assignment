@@ -102,6 +102,9 @@ func main() {
 		labs_network := control.GetAllLab("network")
 		labs_information := control.GetAllLab("information")
 		labs_system := control.GetAllLab("system")
+
+		// 志望書を全て取得
+		aspires := control.GetAspires()
 		c.HTML(200, "home-admin.html", gin.H{
 			"admin_id":             admin_id,
 			"students_network":     students_network,
@@ -110,6 +113,7 @@ func main() {
 			"labs_network":         labs_network,
 			"labs_information":     labs_information,
 			"labs_system":          labs_system,
+			"aspires":              aspires,
 		})
 	})
 	// 管理者ユーザー情報新規登録画面
