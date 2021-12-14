@@ -15,7 +15,26 @@
     </div>
     <div align=left>
         <ul>
-            <li><a href="/form">2021年度</li>
+            <li><a href="/form">2021年度研究室志望書提出フォーム</a></li>
+        </ul>
+    </div>
+    <div align= left>
+        <h3>配属が決定した研究室</h3>
+        <ul>
+            <li>研究室ID：{{.lab_id}}</li>
+        </ul>
+    </div>
+    <div align=left>
+        <h3>{{.submit_num}}件の志望書を提出中</h3>
+    </div>
+    <div align= left>
+        <h3>志望書を提出した研究室一覧</h3>
+        <ul>
+            {{ range .aspires }}
+                <li>研究室ID：{{.Lab_id}}</li>
+                <li>志望理由：{{.Reason}}</li>
+                <li>志望度：{{.Rank}}</li>
+            {{ end }}
         </ul>
     </div>
 </body>

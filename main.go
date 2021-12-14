@@ -266,8 +266,15 @@ func main() {
 		// }
 		session_id := session.Get("loginUser")
 		student_id := session_id.(string)
+		submit_num := control.GetSubmitAspNum(student_id)
+		aspires := control.GetSubmitAsp(student_id)
+		get_student := control.GetStudent(student_id)
+		asssign_lab := get_student.Assign_lab
 		c.HTML(200, "home-student.html", gin.H{
 			"student_id": student_id,
+			"lab_id":     asssign_lab,
+			"submit_num": submit_num,
+			"aspires":    aspires,
 		})
 	})
 	// 学生ユーザーの志望書提出フォーム画面
@@ -278,8 +285,16 @@ func main() {
 		student_id := session_id.(string)
 		student := control.GetStudent(student_id)
 		labs := control.GetAllLab(student.Department)
+
+		submit_num := control.GetSubmitAspNum(student_id)
+		message := "提出可能です"
+		if submit_num >= 3 {
+			message = "提出上限：これ以上提出できません"
+		}
 		c.HTML(200, "form.html", gin.H{
 			"student_id": student.Student_id,
+			"submit_num": 3 - submit_num,
+			"message":    message,
 			"department": student.Department,
 			"labs":       labs,
 		})
@@ -291,12 +306,17 @@ func main() {
 		session_id := session.Get("loginUser")
 		student_id := session_id.(string)
 		log.Println(student_id)
-		reason := c.PostForm("reason")
-		rank := c.PostForm("rank")
-		lab_id := c.PostForm("lab_id")
-		log.Println(lab_id)
-		control.CreateAspire(student_id, lab_id, reason, rank)
-		c.Redirect(302, "/home-student")
+		submit_num := control.GetSubmitAspNum(student_id)
+		if submit_num < 3 {
+			reason := c.PostForm("reason")
+			rank := c.PostForm("rank")
+			lab_id := c.PostForm("lab_id")
+			log.Println(lab_id)
+			control.CreateAspire(student_id, lab_id, reason, rank)
+			c.Redirect(302, "/home-student")
+		} else {
+			c.Redirect(302, "/home-student")
+		}
 	})
 
 	// 教員ユーザー登録、ログイン画面
