@@ -270,6 +270,7 @@ func main() {
 		aspires := control.GetSubmitAsp(student_id)
 		get_student := control.GetStudent(student_id)
 		asssign_lab := get_student.Assign_lab
+
 		c.HTML(200, "home-student.html", gin.H{
 			"student_id": student_id,
 			"lab_id":     asssign_lab,

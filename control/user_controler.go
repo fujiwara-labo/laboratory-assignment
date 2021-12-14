@@ -313,8 +313,8 @@ func AssignStudent(student_id string, lab_id string) {
 	var lab models.Lab
 
 	// db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id)
+	// if student.Assign_lab != os.DevNull
 	err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
-	// db.Create(&models.Student{Assign_lab: lab_id})
 	log.Println(err)
 	flag := CompMaxAssingStudent(lab.Lab_id)
 	if flag {

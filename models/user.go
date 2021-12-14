@@ -25,7 +25,7 @@ type Lab struct {
 
 // Aspireモデルの宣言(なぜかaspire_idは自動インクリメントになっている)
 type Aspire struct {
-	Aspire_id  int    `gorm:"primary_key"`
+	Aspire_id  int    `gorm:"primary_key;AUTO_INCREMENT"`
 	Student_id string `form:"student_id" binding:"required"`
 	Lab_id     string `form:"lab_id" binding:"required"`
 	Reason     string `form:"reason"`
