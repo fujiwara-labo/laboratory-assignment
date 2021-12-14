@@ -266,8 +266,12 @@ func main() {
 		// }
 		session_id := session.Get("loginUser")
 		student_id := session_id.(string)
+		submit_num := control.GetSubmitAspNum(student_id)
+		aspires := control.GetSubmitAsp(student_id)
 		c.HTML(200, "home-student.html", gin.H{
 			"student_id": student_id,
+			"submit_num": submit_num,
+			"aspires":    aspires,
 		})
 	})
 	// 学生ユーザーの志望書提出フォーム画面

@@ -140,6 +140,25 @@ func GetAllAspire(lab_id string) []models.Aspire {
 	return aspires
 }
 
+// 各学生の提出した志望書一覧を取得
+func GetSubmitAsp(student_id string) []models.Aspire {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Where("student_id = ?", student_id).Find(&aspires)
+	db.Close()
+	return aspires
+}
+
+// 各学生の提出した志望書数を取得
+func GetSubmitAspNum(student_id string) int {
+	db := gormConnect()
+	var aspires []models.Aspire
+	db.Where("student_id = ?", student_id).Find(&aspires)
+	db.Close()
+	submit_num := len(aspires)
+	return submit_num
+}
+
 // Studentからassign_labがlab_idに一致する学生を全件取得
 func GetAllAssignStudent(lab_id string) []models.Student {
 	db := gormConnect()
