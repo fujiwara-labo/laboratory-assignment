@@ -174,6 +174,16 @@ func CreateAspire(student_id string, lab_id string, reason string, rank string) 
 	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason, Rank: rank})
 }
 
+// 同じ研究室に志望書を出していないか確認
+func ConfExistSameAsp(student_id string, lab_id string, aspires []models.Aspire) bool {
+	for _, aspire := range aspires {
+		if lab_id == aspire.Lab_id {
+			return true
+		}
+	}
+	return false
+}
+
 // student_idに対応する学生の削除
 func DeleteStudent(student_id string) []error {
 	db := gormConnect()
@@ -276,6 +286,14 @@ func CompMaxAssingStudent(lab_id string) bool {
 	}
 }
 
+// aspireを論理削除する関数
+func LogicDeleteAspire(student_id string) {
+	db := gormConnect()
+	var aspire []models.Aspire
+	db.Where("student_id = ?", student_id).Delete(&aspire)
+
+}
+
 // 配属希望調査全体の関数
 // to do : Studentのassign_labを決定する、希望数が多い場合は希望書を返す
 func AssignResarch() {
@@ -283,6 +301,8 @@ func AssignResarch() {
 	var students []models.Student
 	var aspires []models.Aspire
 	labs := GetAllFalseLab()
+	log.Println("************************")
+	log.Println(labs)
 
 	for _, lab := range labs {
 		submit_num := GetSubmitNum(lab.Lab_id)
@@ -293,13 +313,13 @@ func AssignResarch() {
 			// 手動で配属学生を決定(AssignStudent)
 		} else {
 			// 希望学生数が配属上限数より少ない場合→配属決定(true)
-			// 希望書を上記の条件を満たす研究室にいくつか提出している学生は複数の研究室に配属してしまう問題
 			err := db.Where("lab_id = ?", lab.Lab_id).Find(&aspires).GetErrors()
 			log.Println(err)
 			for _, aspire := range aspires {
 				log.Println(aspires)
 				db.Model(&students).Where("student_id = ?", aspire.Student_id).Update("assign_lab", lab.Lab_id)
-				db.Model(&lab).Where("lab_id = ?", lab.Lab_id).Update("assign_flag", true)
+				LogicDeleteAspire(aspire.Student_id)
+				// db.Model(&lab).Where("lab_id = ?", lab.Lab_id).Update("assign_flag", true)
 			}
 		}
 	}
@@ -312,10 +332,9 @@ func AssignStudent(student_id string, lab_id string) {
 	var student models.Student
 	var lab models.Lab
 
-	// db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id)
 	err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
-	// db.Create(&models.Student{Assign_lab: lab_id})
 	log.Println(err)
+	LogicDeleteAspire(student_id)
 	flag := CompMaxAssingStudent(lab.Lab_id)
 	if flag {
 		db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)

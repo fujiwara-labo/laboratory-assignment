@@ -25,7 +25,11 @@
         </ul>
     </div>
     <form action="/select-students" method="post">
-        <p>受け入れ決定学生 :<input type="text" name="student_id" placeholder=""/></p></p>
+        <p>受け入れ決定学生 :<select name="student_id" size="1" >
+            {{ range .aspires }}
+                <option>{{.Student_id}}</option>
+            {{ end }}
+        </select></p>
     <p><input type="submit" value="送信" /></p>
     </form>
 </body>
