@@ -313,8 +313,13 @@ func main() {
 			rank := c.PostForm("rank")
 			lab_id := c.PostForm("lab_id")
 			log.Println(lab_id)
-			control.CreateAspire(student_id, lab_id, reason, rank)
-			c.Redirect(302, "/home-student")
+			flag := control.ConfExistSameAsp(student_id, lab_id, control.GetAspires())
+			if flag {
+				c.Redirect(302, "/home-student")
+			} else {
+				control.CreateAspire(student_id, lab_id, reason, rank)
+				c.Redirect(302, "/home-student")
+			}
 		} else {
 			c.Redirect(302, "/home-student")
 		}
@@ -424,7 +429,7 @@ func main() {
 
 		student_id := c.PostForm("student_id")
 		control.AssignStudent(student_id, lab_id)
-		c.Redirect(302, "/assign-lab")
+		c.Redirect(302, "/home-lab")
 	})
 
 	router.Run(":8080")
