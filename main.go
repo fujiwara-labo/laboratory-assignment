@@ -288,13 +288,13 @@ func main() {
 		labs := control.GetAllLab(student.Department)
 
 		submit_num := control.GetSubmitAspNum(student_id)
-		message := "提出可能です"
-		if submit_num >= 3 {
+		message := "志望書を提出してください"
+		if submit_num == 1 {
 			message = "提出上限：これ以上提出できません"
 		}
 		c.HTML(200, "form.html", gin.H{
 			"student_id": student.Student_id,
-			"submit_num": 3 - submit_num,
+			"submit_num": 1 - submit_num,
 			"message":    message,
 			"department": student.Department,
 			"labs":       labs,
@@ -308,18 +308,12 @@ func main() {
 		student_id := session_id.(string)
 		log.Println(student_id)
 		submit_num := control.GetSubmitAspNum(student_id)
-		if submit_num < 3 {
+		if submit_num == 0 {
 			reason := c.PostForm("reason")
-			rank := c.PostForm("rank")
 			lab_id := c.PostForm("lab_id")
 			log.Println(lab_id)
-			flag := control.ConfExistSameAsp(student_id, lab_id, control.GetAspires())
-			if flag {
-				c.Redirect(302, "/home-student")
-			} else {
-				control.CreateAspire(student_id, lab_id, reason, rank)
-				c.Redirect(302, "/home-student")
-			}
+			control.CreateAspire(student_id, lab_id, reason)
+			c.Redirect(302, "/home-student")
 		} else {
 			c.Redirect(302, "/home-student")
 		}
