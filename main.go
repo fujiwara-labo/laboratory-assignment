@@ -269,12 +269,16 @@ func main() {
 		submit_num := control.GetSubmitAspNum(student_id)
 		aspires := control.GetSubmitAsp(student_id)
 		get_student := control.GetStudent(student_id)
-		asssign_lab := get_student.Assign_lab
-
+		assign_lab := get_student.Assign_lab
+		text := "配属未決定です。志望書を出していない方は提出してください"
+		if len(assign_lab) == 1 {
+			text = "配属が決定しました"
+		}
 		c.HTML(200, "home-student.html", gin.H{
 			"student_id": student_id,
-			"lab_id":     asssign_lab,
+			"lab_id":     assign_lab,
 			"submit_num": submit_num,
+			"message":    text,
 			"aspires":    aspires,
 		})
 	})
@@ -359,12 +363,18 @@ func main() {
 		lab_id := session_id.(string)
 		// Studentsからlab_idで配属が決定した学生を取得
 		students := control.GetAllAssignStudent(lab_id)
-		flag := control.CompMaxAssingStudent(lab_id)
-		text := "配属学生が決定していません"
-		if flag {
-			text = "配属学生が決定していません"
+		// 志望書提出数が定員を超えたことを確認
+		flag_asp := control.CompMaxSubmit(lab_id)
+		// 配属決定学生数が定員まで決定したことを確認
+		flag_assign := control.CompMaxAssingStudent(lab_id)
+		text := "配属希望学生が定員まで達していません"
+		if flag_asp {
+			text = "配属希望学生が定員数を超えました。採用学生を配属学生選択から決定してください"
+			if flag_assign {
+				text = "配属学生が決定しました"
+			}
 		} else {
-			text = "配属学生が決定しました"
+			text = "配属希望学生が定員まで達していません"
 		}
 		c.HTML(200, "home-lab.html", gin.H{
 			"lab_id":   lab_id,
@@ -377,12 +387,15 @@ func main() {
 		session := sessions.Default(c)
 		session_id := session.Get("loginUser")
 		lab_id := session_id.(string)
-		// Studentsからlab_idで配属が決定した学生を取得
+		lab := control.GetLab(lab_id)
+		assignd_num := len(control.GetAllAssignStudent(lab_id))
+		// 提出された志望書一覧を取得
 		aspires := control.GetAllAspire(lab_id)
 		c.HTML(200, "assign-lab.html", gin.H{
-			"lab_id":  lab_id,
-			"lab_id2": lab_id,
-			"aspires": aspires,
+			"lab_id":    lab_id,
+			"assin_num": lab.Assign_max - assignd_num,
+			"lab_id2":   lab_id,
+			"aspires":   aspires,
 		})
 	})
 	// 教員ユーザーログイン
@@ -391,7 +404,7 @@ func main() {
 		session := sessions.Default(c)
 		session.Set("loginUser", c.PostForm("lab_id"))
 		session.Save()
-		// ログインしているStudentの取得
+		// ログインしているLabの取得
 		lab := control.GetLab(c.PostForm("lab_id"))
 		log.Println(lab)
 		// DBから取得したユーザーパスワード(Hash)
@@ -410,9 +423,9 @@ func main() {
 			c.Redirect(302, "/home-lab")
 		}
 	})
-	// 配属希望調査(研究室配属の自動決定) home-admin
+	// 研究室配属先未決定者をランダム割り振り(研究室配属の自動決定) home-admin
 	router.POST("/assign", func(c *gin.Context) {
-		control.AssignResarch()
+		control.UndecidedAssignment()
 		c.Redirect(302, "/home-admin")
 	})
 	// 研究室配属の手動決定 assign-lab
