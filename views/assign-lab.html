@@ -14,13 +14,13 @@
         </form>
     </div>
     <!-- 配属が未決定の場合の表示 -->
+    <h3>あと{{.assin_num}}人の学生を採用してください</h3>
     <div align= left>
         <h3>{{.lab_id2}}研究室を志望する学生一覧</h3>
         <ul>
             {{ range .aspires }}
                 <li>学生番号：{{.Student_id}}</li>
                 <li>志望理由：{{.Reason}}</li>
-                <li>志望度：{{.Rank}}</li>
             {{ end }}
         </ul>
     </div>

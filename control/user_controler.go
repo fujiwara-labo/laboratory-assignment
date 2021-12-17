@@ -2,7 +2,9 @@ package control
 
 import (
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
 	"github.com/fujiwara-labo/laboratory-assignment.git/models"
@@ -47,7 +49,7 @@ func CreateStudent(student_id string, password string, department string) []erro
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Student{Student_id: student_id, Password: passwordEncrypt, Department: department}).GetErrors(); err != nil {
+	if err := db.Create(&models.Student{Student_id: student_id, Password: passwordEncrypt, Department: department, Assign_lab: "none"}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -168,10 +170,10 @@ func GetAllAssignStudent(lab_id string) []models.Student {
 }
 
 // 志望研究室、理由、志望度をAspireに登録する処理
-func CreateAspire(student_id string, lab_id string, reason string, rank string) {
+func CreateAspire(student_id string, lab_id string, reason string) {
 	db := gormConnect()
 	// Insert処理
-	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason, Rank: rank})
+	db.Create(&models.Aspire{Student_id: student_id, Lab_id: lab_id, Reason: reason})
 }
 
 // 同じ研究室に志望書を出していないか確認
@@ -252,6 +254,15 @@ func GetAllFalseLab() []models.Lab {
 	return labs
 }
 
+// assign_flagがfalseのlabを学科ごとに取得
+func GetAllFalseLabByDep(department string) []models.Lab {
+	db := gormConnect()
+	var labs []models.Lab
+	db.Where(&models.Lab{Department: department, Assign_flag: false}).Find(&labs)
+	db.Close()
+	return labs
+}
+
 // Aspireからlab_idごとに提出学生数を取得する関数
 func GetSubmitNum(lab_id string) int {
 	db := gormConnect()
@@ -262,9 +273,12 @@ func GetSubmitNum(lab_id string) int {
 	return submit_num
 }
 
-// assign_maxと提出学生数を比較する関数
-func CompMaxSubmit(submit_num int, assign_max int) bool {
-	if submit_num > assign_max {
+// assign_maxと（提出学生数＋配属決定学生数）を比較する関数
+func CompMaxSubmit(lab_id string) bool {
+	submit_num := len(GetAllAspire(lab_id))
+	students_num := len(GetAllAssignStudent(lab_id))
+	lab := GetLab(lab_id)
+	if (submit_num + students_num) > lab.Assign_max {
 		return true
 	} else {
 		return false
@@ -275,15 +289,19 @@ func CompMaxSubmit(submit_num int, assign_max int) bool {
 func CompMaxAssingStudent(lab_id string) bool {
 	db := gormConnect()
 	var students []models.Student
-	var lab models.Lab
+	lab := GetLab(lab_id)
 	db.Where("assign_lab = ?", lab_id).Find(&students)
+	log.Println("配属決定学生数")
+	log.Println(len(students))
+	log.Println("配属可能人数")
+	log.Println(lab.Assign_max)
 
 	if len(students) >= lab.Assign_max {
 		// 配属決定学生が配属可能上限以上である
 		return true
-	} else {
-		return false
 	}
+	db.Close()
+	return false
 }
 
 // aspireを論理削除する関数
@@ -294,50 +312,142 @@ func LogicDeleteAspire(student_id string) {
 
 }
 
-// 配属希望調査全体の関数
-// to do : Studentのassign_labを決定する、希望数が多い場合は希望書を返す
-func AssignResarch() {
+// 教員が受け入れたい学生を登録する（手動決定）
+func AssignStudent(student_id string, lab_id string) {
 	db := gormConnect()
-	var students []models.Student
-	var aspires []models.Aspire
-	labs := GetAllFalseLab()
-	log.Println("************************")
-	log.Println(labs)
+	var student models.Student
+	lab := GetLab(lab_id)
+	log.Println(lab.Assign_flag)
+	if !lab.Assign_flag {
+		err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
+		log.Println(err)
+		LogicDeleteAspire(student_id)
+	}
+	SetAsssigFlag(lab_id)
+	db.Close()
+}
 
-	for _, lab := range labs {
-		submit_num := GetSubmitNum(lab.Lab_id)
-		flag := CompMaxSubmit(submit_num, lab.Assign_max)
-
-		if flag {
-			// 希望学生数が配属上限数より多い場合 → false
-			// 手動で配属学生を決定(AssignStudent)
-		} else {
-			// 希望学生数が配属上限数より少ない場合→配属決定(true)
-			err := db.Where("lab_id = ?", lab.Lab_id).Find(&aspires).GetErrors()
-			log.Println(err)
-			for _, aspire := range aspires {
-				log.Println(aspires)
-				db.Model(&students).Where("student_id = ?", aspire.Student_id).Update("assign_lab", lab.Lab_id)
-				LogicDeleteAspire(aspire.Student_id)
-				// db.Model(&lab).Where("lab_id = ?", lab.Lab_id).Update("assign_flag", true)
-			}
+// 配属人数が定員人数の時assign_flagをtrueにする関数
+func SetAsssigFlag(lab_id string) {
+	db := gormConnect()
+	var lab models.Lab
+	get_lab := GetLab(lab_id)
+	students := GetAllAssignStudent(lab_id)
+	if get_lab.Assign_max == len(students) {
+		db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)
+		log.Println(lab.Assign_flag)
+		// 志望書が残っていたら削除する
+		aspires := GetAllAspire(lab_id)
+		for _, aspire := range aspires {
+			LogicDeleteAspire(aspire.Student_id)
 		}
 	}
 	db.Close()
 }
 
-// 希望数が定員数を超えていた場合の配属決定処理の関数
-func AssignStudent(student_id string, lab_id string) {
+// 定員割れしている研究室の自動配属決定
+func AutoAssign(lab_id string) {
 	db := gormConnect()
 	var student models.Student
-	var lab models.Lab
-
-	err := db.Model(&student).Where("student_id = ?", student_id).Update("assign_lab", lab_id).GetErrors()
-	log.Println(err)
-	LogicDeleteAspire(student_id)
-	flag := CompMaxAssingStudent(lab.Lab_id)
-	if flag {
-		db.Model(&lab).Where("lab_id = ?", lab_id).Update("assign_flag", true)
+	aspires := GetAllAspire(lab_id)
+	lab := GetLab(lab_id)
+	if lab.Assign_max >= len(aspires) {
+		for _, aspire := range aspires {
+			db.Model(&student).Where("student_id = ?", aspire.Student_id).Update("assign_lab", lab_id)
+			LogicDeleteAspire(aspire.Student_id)
+		}
 	}
 	db.Close()
+}
+
+// to do : assign_labがない学生を定員割れしている研究室にランダム配属
+// 学科ごとの配属研究室が決まっていない学生の取得
+func GetNoAssginStudents() ([]models.Student, []models.Student, []models.Student) {
+	db := gormConnect()
+	var n_students []models.Student
+	var i_students []models.Student
+	var s_students []models.Student
+	db.Where(&models.Student{Department: "network", Assign_lab: "none"}).Find(&n_students)
+	db.Where(&models.Student{Department: "information", Assign_lab: "none"}).Find(&i_students)
+	db.Where(&models.Student{Department: "system", Assign_lab: "none"}).Find(&s_students)
+	db.Close()
+	return n_students, i_students, s_students
+}
+
+// 学科ごとに定員割れしている研究室のID配列を取得
+func NoLimitLabs() ([]string, []string, []string) {
+	n_labs := GetAllFalseLabByDep("network")
+	i_labs := GetAllFalseLabByDep("information")
+	s_labs := GetAllFalseLabByDep("system")
+	var n_lab_ids []string
+	var i_lab_ids []string
+	var s_lab_ids []string
+	// networkのlab_idスライス
+	for _, n_lab := range n_labs {
+		assign_possible_num := n_lab.Assign_max - len(GetAllAssignStudent(n_lab.Lab_id))
+		for i := 0; i < assign_possible_num; i++ {
+			n_lab_ids = append(n_lab_ids, n_lab.Lab_id)
+		}
+	}
+	// informationのlab_idスライス
+	for _, i_lab := range i_labs {
+		assign_possible_num := i_lab.Assign_max - len(GetAllAssignStudent(i_lab.Lab_id))
+		for i := 0; i < assign_possible_num; i++ {
+			i_lab_ids = append(i_lab_ids, i_lab.Lab_id)
+		}
+	}
+	// systemのlab_idスライス
+	for _, s_lab := range s_labs {
+		assign_possible_num := s_lab.Assign_max - len(GetAllAssignStudent(s_lab.Lab_id))
+		for i := 0; i < assign_possible_num; i++ {
+			s_lab_ids = append(s_lab_ids, s_lab.Lab_id)
+		}
+	}
+	return n_lab_ids, i_lab_ids, s_lab_ids
+}
+
+// 全体の実装：（assign_labがない学生を定員割れしている研究室にランダム配属）
+func UndecidedAssignment() {
+	db := gormConnect()
+	// 定員割れしている研究室に志望する学生を全員配属決定にする
+	labs := GetAllFalseLab()
+	for _, lab := range labs {
+		AutoAssign(lab.Lab_id)
+	}
+	// 学科ごとの配属研究室が決まっていない学生の取得
+	n_students, i_students, s_students := GetNoAssginStudents()
+	log.Println("志望書を出していない学生のリスト")
+	log.Println(n_students)
+	// 学科ごとに定員割れしている研究室のID配列を取得
+	n_labs, i_labs, s_labs := NoLimitLabs()
+	log.Println("配属数が定員割れしている研究室のリスト")
+	log.Println(n_labs)
+	shuffle(n_labs)
+	shuffle(i_labs)
+	shuffle(s_labs)
+	// ランダム配属処理
+	for idx, n_student := range n_students {
+		db.Model(&n_student).Update("assign_lab", n_labs[idx])
+		LogicDeleteAspire(n_student.Student_id)
+	}
+
+	for idx, i_student := range i_students {
+		db.Model(&i_student).Update("assign_lab", i_labs[idx])
+		LogicDeleteAspire(i_student.Student_id)
+	}
+
+	for idx, s_student := range s_students {
+		db.Model(&s_student).Update("assign_lab", s_labs[idx])
+		LogicDeleteAspire(s_student.Student_id)
+	}
+	db.Close()
+}
+
+// スライスの要素をシャッフルする関数
+func shuffle(list []string) {
+	rand.Seed(time.Now().UnixNano())
+	for i := range list {
+		j := rand.Intn(i + 1)
+		list[i], list[j] = list[j], list[i]
+	}
 }

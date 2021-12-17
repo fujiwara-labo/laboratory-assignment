@@ -29,7 +29,6 @@ type Aspire struct {
 	Student_id string `form:"student_id" binding:"required"`
 	Lab_id     string `form:"lab_id" binding:"required"`
 	Reason     string `form:"reason"`
-	Rank       string `form:"lank"`
 }
 
 // Admin モデルの宣言
