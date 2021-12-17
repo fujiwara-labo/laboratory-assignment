@@ -2,7 +2,9 @@ package control
 
 import (
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/fujiwara-labo/laboratory-assignment.git/crypto"
 	"github.com/fujiwara-labo/laboratory-assignment.git/models"
@@ -420,6 +422,9 @@ func UndecidedAssignment() {
 	n_labs, i_labs, s_labs := NoLimitLabs()
 	log.Println("配属数が定員割れしている研究室のリスト")
 	log.Println(n_labs)
+	shuffle(n_labs)
+	shuffle(i_labs)
+	shuffle(s_labs)
 	// ランダム配属処理
 	for idx, n_student := range n_students {
 		db.Model(&n_student).Update("assign_lab", n_labs[idx])
@@ -436,4 +441,13 @@ func UndecidedAssignment() {
 		LogicDeleteAspire(s_student.Student_id)
 	}
 	db.Close()
+}
+
+// スライスの要素をシャッフルする関数
+func shuffle(list []string) {
+	rand.Seed(time.Now().UnixNano())
+	for i := range list {
+		j := rand.Intn(i + 1)
+		list[i], list[j] = list[j], list[i]
+	}
 }
