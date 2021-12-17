@@ -270,7 +270,10 @@ func main() {
 		aspires := control.GetSubmitAsp(student_id)
 		get_student := control.GetStudent(student_id)
 		assign_lab := get_student.Assign_lab
-		text := "配属未決定です。志望書を出していない方は提出してください"
+		text := "配属未決定です。志望書を提出してください"
+		if submit_num == 1 {
+			text = "申請中です"
+		}
 		if len(assign_lab) == 1 {
 			text = "配属が決定しました"
 		}
@@ -370,11 +373,12 @@ func main() {
 		text := "配属希望学生が定員まで達していません"
 		if flag_asp {
 			text = "配属希望学生が定員数を超えました。採用学生を配属学生選択から決定してください"
-			if flag_assign {
-				text = "配属学生が決定しました"
-			}
+
 		} else {
 			text = "配属希望学生が定員まで達していません"
+		}
+		if flag_assign {
+			text = "配属学生が決定しました"
 		}
 		c.HTML(200, "home-lab.html", gin.H{
 			"lab_id":   lab_id,

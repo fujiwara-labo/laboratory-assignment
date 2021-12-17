@@ -13,7 +13,7 @@
             <p><input type="submit" value="ログアウト" /></p>
         </form>
     </div>
-    <div align=left>
+    <div id="form", align=left>
         <ul>
             <li><a href="/form">2021年度研究室志望書提出フォーム</a></li>
         </ul>
@@ -21,13 +21,37 @@
     <div align= left>
         <h3>配属が決定した研究室</h3>
         <ul>
-            <li>研究室ID：{{.lab_id}}</li>
+            <li id="assign-lab">{{.lab_id}}</li>
         </ul>
     </div>
     <div align=left>
-        <h3>{{.submit_num}}件の志望書を提出中</h3>
+        <div style="display: flex;">
+            <div ><h3 id="submit-num">{{.submit_num}}</h3></div><h3>件の志望書を提出中</h3>
+        </div>
         <h3>{{.message}}</h3>
     </div>
+    <script>
+        window.addEventListener("pageshow",function(){
+            //初期表示は非表示
+            document.getElementById("form").style.display ="block";
+            const submit_num = document.getElementById("submit-num");
+            const assign_lab = document.getElementById("assign-lab");
+            const form = document.getElementById("form");
+            console.log(typeof(submit_num))
+            if(submit_num.textContent == 1){
+                form.style.display = "none";
+                console.log(submit_num)
+            }else{
+                if(assign_lab.textContent == "none"){
+                    form.style.display ="block";  
+                    console.log(assign_lab)
+                }else{
+                    form.style.display ="none";  
+                }
+
+            }
+        },false);
+    </script>
     <div align= left>
         <h3>志望書を提出した研究室一覧</h3>
         <ul>
