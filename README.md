@@ -4,9 +4,14 @@
 ## explanation
   
 ## Requirement
-
+go.mod参照
+docker
 ## Usage
-
+~~~
+docker-compose up (-dでバックグラウンドで実行)
+docker-compose ps (webとDBサーバが起動できていることを確認)
+// localhostにアクセス
+~~~
 ## Rule
 
 - プルリクエストに関して
