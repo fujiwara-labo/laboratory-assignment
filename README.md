@@ -4,8 +4,8 @@
 ## explanation
   
 ## Requirement
-go.mod参照
-docker
+- go.mod参照
+- docker
 ## Usage
 ~~~
 docker-compose up (-dでバックグラウンドで実行)
