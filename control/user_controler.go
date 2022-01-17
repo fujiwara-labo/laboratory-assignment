@@ -55,6 +55,27 @@ func CreateStudent(student_id string, password string, department string) []erro
 	return nil
 }
 
+// 自動配属可能人数決定機能
+// 配属可能人数上限を決定する関数  -
+func GetAssignMax() int {
+	// information 学科の配属人数決定
+	i_students := GetAllStudent("information")
+	i_labs := GetAllLab("information")
+	i_students_num := len(i_students)
+	i_labs_num := len(i_labs)
+	i_assign_max := i_students_num / i_labs_num // n / m = q（適当）
+	return i_assign_max
+}
+
+// ポストを受けたら配属可能上限人数をLabテーブルに入力する関数
+func SetAssignMax() {
+	// information 学科の配属人数上限をセットする関数
+	asssgn_max := GetAssignMax()
+	db := gormConnect()
+	defer db.Close()
+	db.Create(&models.Lab{Assign_max: asssgn_max})
+}
+
 // 教員ユーザー登録処理
 func CreateLab(lab_id string, password string, department string, assign_max int) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)

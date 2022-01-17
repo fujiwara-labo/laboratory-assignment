@@ -508,3 +508,10 @@ func AutoAssignLab() gin.HandlerFunc {
 		c.Redirect(302, "/home-lab")
 	}
 }
+
+func SetAssignMaxNum() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		control.SetAssignMax()
+		c.Redirect(302, "/home-admin")
+	}
+}
