@@ -526,7 +526,7 @@ func AssignReserchPage() gin.HandlerFunc {
 		student := control.GetStudent(student_id)
 		labs := control.GetAllLab(student.Department)
 
-		c.HTML(200, "assign-lab.html", gin.H{
+		c.HTML(200, "assign-reserch.html", gin.H{
 			"student_id": student_id,
 			"department": student.Department,
 			"labs":       labs,
