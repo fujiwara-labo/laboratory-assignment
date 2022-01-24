@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>配属希望調査</title>
+</head>
+<body>
+    <div align=center><h1>配属希望調査</h1></div>
+    <!-- ログイン中の学生idを表示 -->
+    <div align=right>
+        <p>学生番号[{{.student_id}}]でログインしています</p>
+        <form action="/logout" method="post">
+            <p><input type="submit" value="ログアウト" /></p>
+        </form>
+    </div>
+    <div align= left>
+        <h3>{{.department}}学科の配属可能な研究室一覧</h3>
+        <ul>
+            {{ range .labs }}
+                <li>{{.Lab_id}}研究室</li>
+            {{ end }}
+        </ul>
+        <form action="/assign-reserch" method="post">
+            <h3>第１希望</h3>
+                <p>志望研究室 :<select name="lab_id_1" size="1" >
+                    {{ range .labs }}
+                        <option>{{.Lab_id}}</option>
+                    {{ end }}
+                </select></p>
+                <h3>第２希望</h3>
+                <p>志望研究室 :<select name="lab_id_2" size="1" >
+                    {{ range .labs }}
+                        <option>{{.Lab_id}}</option>
+                    {{ end }}
+                </select></p>
+                <h3>第３希望</h3>
+                <p>志望研究室 :<select name="lab_id_3" size="1" >
+                    {{ range .labs }}
+                        <option>{{.Lab_id}}</option>
+                    {{ end }}
+                </select></p>
+            <p><input type="submit" value="送信" /></p>
+        </form>
+    </div>
+</body>
+</html>

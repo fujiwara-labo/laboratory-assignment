@@ -79,6 +79,11 @@ func main() {
 	// 研究室配属の手動決定 assign-lab
 	router.POST("/select-students", server.AutoAssignLab())
 
+	// 学生ユーザーの配属希望調査画面
+	router.GET("/assign-reserch", server.AssignReserchPage())
+	// 学生ユーザーの配属希望調査機能
+	router.POST("/assign-reserch", server.AssignReserch())
+
 	router.Run(":8080")
 
 }
