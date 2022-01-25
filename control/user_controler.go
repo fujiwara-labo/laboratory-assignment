@@ -82,7 +82,7 @@ func CreateLab(lab_id string, password string, department string, assign_max int
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max, Assign_flag: false}).GetErrors(); err != nil {
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max, Assign_flag: false, Rank: 0}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -471,4 +471,13 @@ func shuffle(list []string) {
 		j := rand.Intn(i + 1)
 		list[i], list[j] = list[j], list[i]
 	}
+}
+
+// 配属希望調査によって研究室の人気度を記録する関数
+func CalcuRank(lab_id1 string, lab_id2 string, lab_id3 string) {
+	db := gormConnect()
+	var lab models.Lab
+	db.Model(&lab).Where("lab_id = ?", lab_id1).Update("rank", int(GetLab(lab_id1).Rank)+3)
+	db.Model(&lab).Where("lab_id = ?", lab_id2).Update("rank", int(GetLab(lab_id2).Rank)+3)
+	db.Model(&lab).Where("lab_id = ?", lab_id3).Update("rank", int(GetLab(lab_id3).Rank)+3)
 }

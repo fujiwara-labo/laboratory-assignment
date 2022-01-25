@@ -546,6 +546,7 @@ func AssignReserch() gin.HandlerFunc {
 		log.Println(lab1)
 		log.Println(lab2)
 		log.Println(lab3)
+		control.CalcuRank(lab1, lab2, lab3)
 
 		c.Redirect(302, "/home-student")
 	}
