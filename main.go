@@ -74,8 +74,15 @@ func main() {
 	router.POST("/login-lab", server.LabLoginPage())
 	// 研究室配属先未決定者をランダム割り振り(研究室配属の自動決定) home-admin
 	router.POST("/assign", server.AssignLab())
+	// 研究室配属可能上限人数の自動設定　set-assign-max
+	router.POST("/set-asssign-num", server.SetAssignMaxNum())
 	// 研究室配属の手動決定 assign-lab
 	router.POST("/select-students", server.AutoAssignLab())
+
+	// 学生ユーザーの配属希望調査画面
+	router.GET("/assign-reserch", server.AssignReserchPage())
+	// 学生ユーザーの配属希望調査機能
+	router.POST("/assign-reserch", server.AssignReserch())
 
 	router.Run(":8080")
 

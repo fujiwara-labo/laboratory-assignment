@@ -508,3 +508,46 @@ func AutoAssignLab() gin.HandlerFunc {
 		c.Redirect(302, "/home-lab")
 	}
 }
+
+func SetAssignMaxNum() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		control.SetAssignMax()
+		c.Redirect(302, "/home-admin")
+	}
+}
+
+// 配属希望調査の画面表示
+func AssignReserchPage() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+
+		session_id := session.Get("loginUser")
+		student_id := session_id.(string)
+		student := control.GetStudent(student_id)
+		labs := control.GetAllLab(student.Department)
+
+		c.HTML(200, "assign-reserch.html", gin.H{
+			"student_id": student_id,
+			"department": student.Department,
+			"labs":       labs,
+		})
+	}
+}
+
+func AssignReserch() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		session_id := session.Get("loginUser")
+		student_id := session_id.(string)
+		lab1 := c.PostForm("lab_id_1")
+		lab2 := c.PostForm("lab_id_2")
+		lab3 := c.PostForm("lab_id_3")
+		log.Println(student_id)
+		log.Println(lab1)
+		log.Println(lab2)
+		log.Println(lab3)
+		control.CalcuRank(lab1, lab2, lab3)
+
+		c.Redirect(302, "/home-student")
+	}
+}
