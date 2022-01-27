@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>研究室配属システム</title>
 </head>
-<body>
+<body style="background: linear-gradient(45deg, rgb(65, 218, 51), white);">
     <div align=center><h1>研究室配属決定処理ページ</h1></div>
     <!-- ログイン中のidを表示 -->
     <div align=right>
@@ -15,22 +15,24 @@
     </div>
     <!-- 配属が未決定の場合の表示 -->
     <h3>あと{{.assin_num}}人の学生を採用してください</h3>
-    <div align= left>
-        <h3>{{.lab_id2}}研究室を志望する学生一覧</h3>
-        <ul>
-            {{ range .aspires }}
-                <li>学生番号：{{.Student_id}}</li>
-                <li>志望理由：{{.Reason}}</li>
-            {{ end }}
-        </ul>
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+        <div align= left>
+            <h3>{{.lab_id2}}研究室を志望する学生一覧</h3>
+            <ul>
+                {{ range .aspires }}
+                    <li>学生番号：{{.Student_id}}</li>
+                    <li>志望理由：{{.Reason}}</li>
+                {{ end }}
+            </ul>
+        </div>
+        <form action="/select-students" method="post">
+            <p>受け入れ決定学生 :<select name="student_id" size="1" >
+                {{ range .aspires }}
+                    <option>{{.Student_id}}</option>
+                {{ end }}
+            </select></p>
+        <p><input type="submit" value="送信" /></p>
+        </form>
     </div>
-    <form action="/select-students" method="post">
-        <p>受け入れ決定学生 :<select name="student_id" size="1" >
-            {{ range .aspires }}
-                <option>{{.Student_id}}</option>
-            {{ end }}
-        </select></p>
-    <p><input type="submit" value="送信" /></p>
-    </form>
 </body>
 </html>

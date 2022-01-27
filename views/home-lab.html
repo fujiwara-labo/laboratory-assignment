@@ -4,27 +4,31 @@
     <meta charset="UTF-8">
     <title>研究室配属システムトップ</title>
 </head>
-<body>
+<body style="background: linear-gradient(45deg, rgb(65, 218, 51), white);">
     <div align=center><h1>教員用ページホーム</h1></div>
-    <!-- ログイン中のidを表示 -->
-    <div align=right>
-        <p>[{{.lab_id}}]でログインしています</p>
-        <form action="/logout" method="post">
-            <p><input type="submit" value="ログアウト" /></p>
+        <!-- ログイン中のidを表示 -->
+        <div align=right>
+            <p>[{{.lab_id}}]でログインしています</p>
+            <form action="/logout" method="post">
+                <p><input type="submit" value="ログアウト" /></p>
+            </form>
+        </div>
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+        <h3>{{.message}}</h3>
+        <form action="/assign-lab" method="get">
+            <p><input type="submit" value="配属学生選択" /></p>
         </form>
     </div>
-    <h3>{{.message}}</h3>
-    <form action="/assign-lab" method="get">
-        <p><input type="submit" value="配属学生選択" /></p>
-    </form>
-    <div align= left>
-        <!-- 配属が決定した学生を表示 -->
-        <h3>配属が決定した学生</h3>
-        <ul>
-            {{ range .students }}
-                <li>学生番号：{{.Student_id}}</li>
-            {{ end }}
-        </ul>
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+        <div align= left>
+            <!-- 配属が決定した学生を表示 -->
+            <h3>配属が決定した学生</h3>
+            <ul>
+                {{ range .students }}
+                    <li>学生番号：{{.Student_id}}</li>
+                {{ end }}
+            </ul>
+        </div>
     </div>
 </body>
 </html>
