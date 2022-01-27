@@ -55,27 +55,6 @@ func CreateStudent(student_id string, password string, department string) []erro
 	return nil
 }
 
-// 自動配属可能人数決定機能
-// 配属可能人数上限を決定する関数  -
-func GetAssignMax() int {
-	// information 学科の配属人数決定
-	i_students := GetAllStudent("information")
-	i_labs := GetAllLab("information")
-	i_students_num := len(i_students)
-	i_labs_num := len(i_labs)
-	i_assign_max := i_students_num / i_labs_num // n / m = q（適当）
-	return i_assign_max
-}
-
-// ポストを受けたら配属可能上限人数をLabテーブルに入力する関数
-func SetAssignMax() {
-	// information 学科の配属人数上限をセットする関数
-	asssgn_max := GetAssignMax()
-	db := gormConnect()
-	defer db.Close()
-	db.Create(&models.Lab{Assign_max: asssgn_max})
-}
-
 // 教員ユーザー登録処理
 func CreateLab(lab_id string, password string, department string, assign_max int) []error {
 	passwordEncrypt, _ := crypto.PasswordEncrypt(password)
@@ -478,6 +457,36 @@ func CalcuRank(lab_id1 string, lab_id2 string, lab_id3 string) {
 	db := gormConnect()
 	var lab models.Lab
 	db.Model(&lab).Where("lab_id = ?", lab_id1).Update("rank", int(GetLab(lab_id1).Rank)+3)
-	db.Model(&lab).Where("lab_id = ?", lab_id2).Update("rank", int(GetLab(lab_id2).Rank)+3)
-	db.Model(&lab).Where("lab_id = ?", lab_id3).Update("rank", int(GetLab(lab_id3).Rank)+3)
+	db.Model(&lab).Where("lab_id = ?", lab_id2).Update("rank", int(GetLab(lab_id2).Rank)+2)
+	db.Model(&lab).Where("lab_id = ?", lab_id3).Update("rank", int(GetLab(lab_id3).Rank)+1)
+
+	db.Close()
+}
+
+// 人気順によって配属可能人数の上限を決定する関数
+// 流れ,１学生数÷研究室数、２余りの人数を人気が高い研究室に割り振る
+func SetAssignMax() {
+	CalcuAssignMax("system")
+	CalcuAssignMax("information")
+	CalcuAssignMax("network")
+}
+func CalcuAssignMax(department string) {
+	// system学科の配属人数上限の決定
+	labs_num := len(GetAllLab(department))
+	students_num := len(GetAllStudent(department))
+	base_num := students_num / labs_num
+	amari := students_num % labs_num
+
+	db := gormConnect()
+	var labs []models.Lab
+	db.Where("lab_id = ?", department).Order("rank desc").Find(&labs)
+
+	for i, lab := range labs {
+		if i < amari {
+			db.Model(&labs).Where("lab_id = ?", lab.Lab_id).Update("assign_max", base_num+1)
+		} else {
+			db.Model(&labs).Where("lab_id = ?", lab.Lab_id).Update("assign_max", base_num)
+		}
+	}
+	db.Close()
 }
