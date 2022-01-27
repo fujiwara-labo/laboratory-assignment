@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>管理者ページトップ</title>
 </head>
-<body>
+<body style="background: linear-gradient(45deg, rgb(65, 218, 51), white);">
     <div align=center><h1>管理者ページホーム</h1></div>
     <!-- ログイン中の管理者idを表示 -->
     <div align=right>
@@ -34,75 +34,89 @@
     </div>
     
     <!-- 学科ごとに登録している学生を全件表示 -->
+    <center><h3>登録している学生一覧</h3></center>
     <div align= left>
-        <h3>登録している学生一覧</h3>
-        <h4>network学科の学生一覧</h4>
-        <ul>
-            {{ range .students_network }}
-                <li>学生ID：{{.Student_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-            {{ end }}
-        </ul>
-        <h4>information学科の学生一覧</h4>
-        <ul>
-            {{ range .students_information }}
-                <li>学生ID：{{.Student_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-            {{ end }}
-        </ul>
-        <h4>system学科の学生一覧</h4>
-        <ul>
-            {{ range .students_system }}
-                <li>学生ID：{{.Student_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-            {{ end }}
-        </ul>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>network学科の学生一覧</h4>
+            <ul>
+                {{ range .students_network }}
+                    <li><u>学生ID：{{.Student_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                {{ end }}
+            </ul>
+        </div>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>information学科の学生一覧</h4>
+            <ul>
+                {{ range .students_information }}
+                    <li><u>学生ID：{{.Student_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                {{ end }}
+            </ul>
+        </div>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>system学科の学生一覧</h4>
+            <ul>
+                {{ range .students_system }}
+                    <li><u>学生ID：{{.Student_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                {{ end }}
+            </ul>
+        </div>
     </div>
     <!-- 学科ごとに登録している研究室を全件表示 -->
-    <div align= left>
-        <h3>登録している研究室一覧</h3>
-        <h4>network学科の研究室一覧</h4>
-        <ul>
-            {{ range .labs_network }}
-                <li>研究室ID：{{.Lab_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-                <li>受け入れ可能人数：{{.Assign_max}}</li>
-            {{ end }}
-        </ul>
-        <h4>information学科の研究室一覧</h4>
-        <ul>
-            {{ range .labs_information }}
-                <li>研究室ID：{{.Lab_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-                <li>受け入れ可能人数：{{.Assign_max}}</li>
-            {{ end }}
-        </ul>
-        <h4>system学科の研究室一覧</h4>
-        <ul>
-            {{ range .labs_system }}
-                <li>研究室ID：{{.Lab_id}}</li>
-                <li>パスワード：{{.Password}}</li>
-                <li>学科：{{.Department}}</li>
-                <li>受け入れ可能人数：{{.Assign_max}}</li>
-            {{ end }}
-        </ul>
+    <center><h3>登録している研究室一覧</h3></center>
+    <div align= left></div>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>network学科の研究室一覧</h4>
+            <ul>
+                {{ range .labs_network }}
+                    <li><u>研究室ID：{{.Lab_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                    <li>受け入れ可能人数：{{.Assign_max}}</li>
+                {{ end }}
+            </ul>
+        </div>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>information学科の研究室一覧</h4>
+            <ul>
+                {{ range .labs_information }}
+                    <li><u>研究室ID：{{.Lab_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                    <li>受け入れ可能人数：{{.Assign_max}}</li>
+                {{ end }}
+            </ul>
+        </div>
+        <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+            <h4>system学科の研究室一覧</h4>
+            <ul>
+                {{ range .labs_system }}
+                    <li><u>研究室ID：{{.Lab_id}}</u></li>
+                    <li>パスワード：{{.Password}}</li>
+                    <li>学科：{{.Department}}</li>
+                    <li>受け入れ可能人数：{{.Assign_max}}</li>
+                {{ end }}
+            </ul>
+        </div>
     </div>
-    <!-- 学科ごとに登録している研究室を全件表示 -->
-    <div align= left>
-        <h3>提出された志望書一覧</h3>
-        <ul>
-            {{ range .aspires }}
-                <li>志望書ID：{{.Aspire_id}}</li>
-                <li>パスワード：{{.Student_id}}</li>
-                <li>希望研究室：{{.Lab_id}}</li>
-                <li>受志望理由：{{.Reason}}</li>
-            {{ end }}
-        </ul>
+    <!-- 提出された志望書一覧を全件表示 -->
+    <center><h3>提出された志望書一覧</h3></center>
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #333333; border-radius: 10px;">
+        <div align= left>
+            <ul>
+                {{ range .aspires }}
+                    <li><u>志望書ID：{{.Aspire_id}}</u></li>
+                    <li>パスワード：{{.Student_id}}</li>
+                    <li>希望研究室：{{.Lab_id}}</li>
+                    <li>受志望理由：{{.Reason}}</li>
+                {{ end }}
+            </ul>
+        </div>
     </div>
 </body>
 </html>

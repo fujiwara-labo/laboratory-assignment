@@ -7,15 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学生用ページ</title>
 </head>
-    <body> 
-        <h1>ログインはこちら</h1>
-        <div class="input">
-            <p>{{.err}}</p>
-            <form action="/login" method="post">
-                <p>ユーザー名 :<input type="text" name="student_id" placeholder=""/></p>
-                <p>パスワード :<input type="text" name="password" placeholder=""/></p>
-                <p><input type="submit" value="送信" /></p>
-            </form>
-        </div>
+    <body style="background: linear-gradient(45deg, rgb(65, 218, 51), white);">
+        <center>
+            <h1>学生ログインはこちら</h1>
+            <div class="input">
+                <p>{{.err}}</p>
+                <form action="/login" method="post">
+                    <p>ユーザー名 :<input type="text" name="student_id" placeholder=""/></p>
+                    <p>パスワード :<input type="text" name="password" placeholder=""/></p>
+                    <p><input type="submit" value="送信" /></p>
+                </form>
+            </div>
+        </center>
     </body>
 </html>
