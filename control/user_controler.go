@@ -61,7 +61,7 @@ func CreateLab(lab_id string, password string, department string, assign_max int
 	db := gormConnect()
 	defer db.Close()
 	// Insert処理
-	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max, Assign_flag: false, Rank: 0}).GetErrors(); err != nil {
+	if err := db.Create(&models.Lab{Lab_id: lab_id, Password: passwordEncrypt, Department: department, Assign_max: assign_max, Assign_flag: false, Popular: 0}).GetErrors(); err != nil {
 		return err
 	}
 	return nil
@@ -456,9 +456,9 @@ func shuffle(list []string) {
 func CalcuRank(lab_id1 string, lab_id2 string, lab_id3 string) {
 	db := gormConnect()
 	var lab models.Lab
-	db.Model(&lab).Where("lab_id = ?", lab_id1).Update("rank", int(GetLab(lab_id1).Rank)+3)
-	db.Model(&lab).Where("lab_id = ?", lab_id2).Update("rank", int(GetLab(lab_id2).Rank)+2)
-	db.Model(&lab).Where("lab_id = ?", lab_id3).Update("rank", int(GetLab(lab_id3).Rank)+1)
+	db.Model(&lab).Where("lab_id = ?", lab_id1).Update("popular", int(GetLab(lab_id1).Popular)+3)
+	db.Model(&lab).Where("lab_id = ?", lab_id2).Update("popular", int(GetLab(lab_id2).Popular)+2)
+	db.Model(&lab).Where("lab_id = ?", lab_id3).Update("popular", int(GetLab(lab_id3).Popular)+1)
 
 	db.Close()
 }
@@ -479,7 +479,7 @@ func CalcuAssignMax(department string) {
 
 	db := gormConnect()
 	var labs []models.Lab
-	db.Where("lab_id = ?", department).Order("rank desc").Find(&labs)
+	db.Where("lab_id = ?", department).Order("popular desc").Find(&labs)
 
 	for i, lab := range labs {
 		if i < amari {

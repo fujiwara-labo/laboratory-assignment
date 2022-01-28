@@ -21,7 +21,7 @@ type Lab struct {
 	Department  string `form:"department" binding:"required"`
 	Assign_max  int
 	Assign_flag bool
-	Rank        int
+	Popular     int
 }
 
 // Aspireモデルの宣言(なぜかaspire_idは自動インクリメントになっている)
