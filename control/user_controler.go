@@ -476,10 +476,11 @@ func CalcuAssignMax(department string) {
 	students_num := len(GetAllStudent(department))
 	base_num := students_num / labs_num
 	amari := students_num % labs_num
+	log.Println(base_num)
 
 	db := gormConnect()
 	var labs []models.Lab
-	db.Where("lab_id = ?", department).Order("popular desc").Find(&labs)
+	db.Where("department = ?", department).Order("popular desc").Find(&labs)
 
 	for i, lab := range labs {
 		if i < amari {
